@@ -1,0 +1,25 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html # UI 访问路径
+    tags-sorter: alpha      # 按字母排序标签
+  api-docs:
+    path: /v3/api-docs      # OpenAPI JSON 描述文件路径
+  info:
+    title: 项目API文档
+    version: 1.0.0
+    description: 基于Spring Boot 3和JDK 21开发
+
+jwt:
+  secret: "安全密钥字符串应该是随机的不可预测的"
+  expiration: 7200000  # 登录token过期时间，单位ms
+
+api:
+  dify:
+    url: http://localhost/v1/workflows/run    # 工作流访问地址
+    file-url: http://localhost/v1/files/upload   # 文件上传base地址
+    key-question-generate: app-gQNqJt2j1KtThZQzXPEwh1VT   #试题生成工作流key
+    key-question-grade: app-4x9TCYbtdTf78FPjbdlrfGZh   #试题（主观、编程）智能评分工作流Key
+    key-document-generate: app-BrTI2LHS69GErL3w5OcDegjv   #文档生成工作流key
+    key-course-generate: app-9SCoLrMv8jaIxBAQRTML3lFK   #课程生成工作流key
+  nginx:
+    url: http://localhost:8081/upload/gpt/

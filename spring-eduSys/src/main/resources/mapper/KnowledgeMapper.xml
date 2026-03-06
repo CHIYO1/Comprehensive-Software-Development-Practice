@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.scnu.gpt.mapper.KnowledgeMapper">
+    <insert id="insertSectionKnowledges">
+        INSERT INTO section_knowledge (section_id, knowledge) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.sectionId}, #{item.knowledge})
+        </foreach>
+    </insert>
+
+    <insert id="insertQuestionKnowledges">
+        INSERT INTO question_knowledge (question_id, knowledge) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.questionId}, #{item.knowledge})
+        </foreach>
+    </insert>
+</mapper>
