@@ -66,7 +66,8 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 关键：放行所有OPTIONS请求
-                        .requestMatchers(HttpMethod.POST,"/user/login").permitAll()     // 允许匿名访问登录接口
+                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()     // 允许匿名访问登录接口
+                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll() // 允许匿名访问注册接口
                         .requestMatchers("/v3/api-docs/**").permitAll() //接口文档放行
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/gpt/**").permitAll() // 放行所有gpt访问路径

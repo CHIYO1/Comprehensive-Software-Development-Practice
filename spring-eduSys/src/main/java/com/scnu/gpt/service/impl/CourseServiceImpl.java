@@ -176,7 +176,7 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
         }
         int studentNum = courseMapper.getStudentNum(courseId);
         int sectionNum = courseMapper.getSectionNum(courseId);
-        String teacherName = userMapper.selectById(course.getUserId()).getUserName();
+        String teacherName = userMapper.selectById(course.getUserId()).getUsername();
         if(userId<=0){
             return new CourseStatisticsDTO(course,studentNum,sectionNum,teacherName,0);
         }else{
