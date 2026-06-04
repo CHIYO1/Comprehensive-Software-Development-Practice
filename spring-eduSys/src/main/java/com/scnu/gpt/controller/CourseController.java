@@ -2,6 +2,7 @@ package com.scnu.gpt.controller;
 
 import com.scnu.gpt.entity.Course;
 import com.scnu.gpt.entity.Section;
+import com.scnu.gpt.entity.User;
 import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.course.CourseDetailDTO;
 import com.scnu.gpt.pojo.course.CourseStatisticsDTO;
@@ -9,6 +10,7 @@ import com.scnu.gpt.service.ICourseService;
 import com.scnu.gpt.service.IDoQuestionService;
 import com.scnu.gpt.service.IFileService;
 import com.scnu.gpt.service.ISectionService;
+import com.scnu.gpt.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -43,6 +45,9 @@ public class CourseController {
     @Autowired
     private IFileService fileService;
 
+    @Autowired
+    private IUserService userService;
+
     @Operation(
             summary = "查询单个课程详情",
             description = "如题")
@@ -63,9 +68,10 @@ public class CourseController {
     public ApiResponse<Integer> addCourse() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
+            String account = authentication.getName();
+            User user = userService.getByAccount(account);
             Course course = new Course();
-            course.setUserId(Integer.parseInt(userId));
+            course.setUserId(user.getUserId());
             return new ApiResponse<>("200","成功",courseService.addCourse(course));
         }catch (Exception e){
             System.out.println(e.getMessage());
@@ -121,8 +127,9 @@ public class CourseController {
     public ApiResponse<ArrayList<CourseStatisticsDTO>> queryCourseByTeacherId() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return new ApiResponse<>("200","成功",courseService.queryCourseByTeacherId(Integer.parseInt(userId)));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return new ApiResponse<>("200","成功",courseService.queryCourseByTeacherId(userId));
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
@@ -149,8 +156,9 @@ public class CourseController {
     public ApiResponse<ArrayList<CourseStatisticsDTO>> queryAllCourse() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return new ApiResponse<>("200","成功",courseService.queryAllCourse(Integer.parseInt(userId)));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return new ApiResponse<>("200","成功",courseService.queryAllCourse(userId));
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
@@ -164,8 +172,9 @@ public class CourseController {
     public ApiResponse<Null> joinCourse(@RequestBody String courseId) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            courseService.joinCourse(Integer.parseInt(userId),Integer.parseInt(courseId));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            courseService.joinCourse(userId, Integer.parseInt(courseId));
 
             return new ApiResponse<>("200","成功",null);
         }catch (Exception e){
