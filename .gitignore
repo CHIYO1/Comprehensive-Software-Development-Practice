@@ -1,0 +1,21 @@
+# Python AI service
+python-ai-api/.env
+python-ai-api/.venv/
+python-ai-api/**/__pycache__/
+python-ai-api/**/*.pyc
+
+# Java / Maven
+spring-eduSys/target/
+spring-eduSys/*.log
+spring-eduSys/logs/
+
+# Vue / Node
+vue-eduSys/node_modules/
+vue-eduSys/dist/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
