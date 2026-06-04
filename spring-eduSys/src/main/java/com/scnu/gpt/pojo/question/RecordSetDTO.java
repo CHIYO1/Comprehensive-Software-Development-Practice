@@ -17,7 +17,7 @@ public record RecordSetDTO(
         @Schema(description = "试题集id")
         int setId,
         @Schema(description = "做题学生姓名")
-        String userName,
+        String username,
         @Schema(description = "状态（未完成/评卷中/已评分）")
         String state
 ) {

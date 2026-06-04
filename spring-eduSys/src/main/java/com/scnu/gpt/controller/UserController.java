@@ -1,27 +1,28 @@
 package com.scnu.gpt.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.scnu.gpt.entity.User;
 import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.user.UserLoginRequest;
 import com.scnu.gpt.pojo.user.UserLoginResponse;
+import com.scnu.gpt.pojo.user.UserRegisterRequest;
 import com.scnu.gpt.service.IUserService;
 import com.scnu.gpt.util.JwtUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
- *  前端控制器
+ *  用户控制器 — 登录、注册、用户信息
  * </p>
  *
  * @author ldw
@@ -29,86 +30,79 @@ import java.util.List;
  */
 @RestController
 @CrossOrigin
-@RequestMapping("/user")
-@Tag(name = "用户管理", description = "包括用户登录...") // API分组
+@RequestMapping("/users")
+@Tag(name = "用户管理", description = "包括用户登录、注册、信息查询...")
 public class UserController {
-    private final AuthenticationManager authenticationManager; // 认证管理器
-    private final JwtUtils jwtUtils; // JWT工具
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
     private final IUserService userService;
 
-    // 构造函数依赖注入
-    public UserController(AuthenticationManager authenticationManager, JwtUtils jwtUtils, IUserService IUserService) {
+    public UserController(AuthenticationManager authenticationManager, JwtUtils jwtUtils, IUserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
-        this.userService = IUserService;
+        this.userService = userService;
     }
 
-    // 登录接口
-    @Operation(
-            summary = "用户登录。返回用户信息及安全认证token",
-            description = "如题")
+    /**
+     * 用户登录 — 使用 account + password
+     */
+    @Operation(summary = "用户登录", description = "使用账号(account)和密码登录，返回用户信息及JWT令牌")
     @PostMapping("/login")
     public ApiResponse<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
-        try{
-            // 自动验证登录信息并生成token认证信息
+        try {
+            // Spring Security 认证（loadUserByUsername 按 account 查询）
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.userId(), // 用户名
-                            request.password()  // 密码
+                            request.account(),
+                            request.password()
                     )
             );
-            //用户信息查询
-            User user = userService.getById(Integer.parseInt(request.userId()));
-            UserLoginResponse response = new UserLoginResponse(user.getUserId(),user.getUserName(),user.getUserType(),jwtUtils.generateToken(
-                    (UserDetails) authentication.getPrincipal()));
-            return new ApiResponse<>("200","登录成功", response); // 生成令牌并返回
-        }catch (AuthenticationException e) {
-            System.out.println("登录验证失败"+e.getMessage());
-            return new ApiResponse<>("500","登录验证失败",null);
+            // 查询用户完整信息
+            User user = userService.getByAccount(request.account());
+            UserLoginResponse response = new UserLoginResponse(
+                    user.getUserId(),
+                    user.getUsername(),
+                    user.getRole(),
+                    jwtUtils.generateToken((UserDetails) authentication.getPrincipal())
+            );
+            return new ApiResponse<>("200", "登录成功", response);
+        } catch (DisabledException e) {
+            System.out.println("用户已被禁用: " + e.getMessage());
+            return new ApiResponse<>("500", "用户已被禁用，请联系管理员", null);
+        } catch (AuthenticationException e) {
+            System.out.println("登录验证失败: " + e.getMessage());
+            return new ApiResponse<>("500", "账号或密码错误", null);
         }
     }
-//    @Operation(
-//            summary = "用户登录",
-//            description = "如题") // 接口注解
-//    @PostMapping("/login")
-//    public UserLoginResponse userLogin(@RequestBody UserLoginRequest request) {
-//
-//        return IUserService.userLogin(request);
-//    }
-//
-//    @Operation(
-//            summary = "用户查询",
-//            description = "根据传入的User条件，动态查询User列表")
-//    @PostMapping("/queryUsers")
-//    public List<User> queryUsers(@RequestBody User requestUser ) {
-//
-//        return IUserService.queryUser(requestUser);
-//    }
-//
-//    @Operation(
-//            summary = "添加用户",
-//            description = "用于注册/添加新用户（学生/教师）")
-//    @PostMapping("/add")
-//    public String addUser(@RequestBody User user) {
-//        boolean saved = IUserService.save(user);
-//        return saved ? "用户添加成功" : "用户添加失败";
-//    }
-//
-//    @Operation(
-//            summary = "修改用户信息",
-//            description = "支持修改用户昵称、密码、类型等信息")
-//    @PutMapping("/update")
-//    public String updateUser(@RequestBody User user) {
-//        boolean updated = IUserService.updateById(user);
-//        return updated ? "用户信息修改成功" : "用户信息修改失败";
-//    }
-//
-//    @Operation(
-//            summary = "删除用户",
-//            description = "根据用户ID删除对应用户")
-//    @DeleteMapping("/delete")
-//    public String deleteUser(@RequestParam Integer userId) {
-//        boolean removed = IUserService.removeById(userId);
-//        return removed ? "用户删除成功" : "用户删除失败";
-//    }
+
+    /**
+     * 用户注册
+     */
+    @Operation(summary = "用户注册", description = "注册新用户，仅允许Student和Teacher角色")
+    @PostMapping("/register")
+    public ApiResponse<Void> register(@RequestBody UserRegisterRequest request) {
+        try {
+            userService.register(request);
+            return new ApiResponse<>("200", "注册成功", null);
+        } catch (IllegalArgumentException e) {
+            System.out.println("注册失败: " + e.getMessage());
+            return new ApiResponse<>("500", e.getMessage(), null);
+        } catch (Exception e) {
+            System.out.println("注册异常: " + e.getMessage());
+            return new ApiResponse<>("500", "注册失败，请稍后重试", null);
+        }
+    }
+
+    /**
+     * 获取用户信息
+     */
+    @Operation(summary = "获取用户信息", description = "根据user_id查询用户的username和avatar")
+    @GetMapping("/info")
+    public ApiResponse<Map<String, Object>> getUserInfo(@RequestParam("user_id") Integer userId) {
+        Map<String, Object> info = userService.getUserInfo(userId);
+        if (info == null) {
+            return new ApiResponse<>("500", "用户不存在", null);
+        }
+        return new ApiResponse<>("200", "获取成功", info);
+    }
 }
