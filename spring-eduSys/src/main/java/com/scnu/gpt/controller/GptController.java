@@ -4,6 +4,7 @@ import com.scnu.gpt.entity.Question;
 import com.scnu.gpt.entity.RecordQuestion;
 import com.scnu.gpt.entity.RecordSet;
 import com.scnu.gpt.entity.Section;
+import com.scnu.gpt.entity.User;
 import com.scnu.gpt.mapper.CourseMapper;
 import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.course.CourseDetailDTO;
@@ -42,15 +43,17 @@ public class GptController {
     private final ICourseService courseService;
     private final IQuestionService questionService;
     private final IDoQuestionService doQuestionService;
+    private final IUserService userService;
     // 构造函数依赖注入
     public GptController(IGptService gptService, ISectionService sectionService,
                          ICourseService courseService, IQuestionService questionService,
-                        IDoQuestionService doQuestionService) {
+                        IDoQuestionService doQuestionService, IUserService userService) {
         this.gptService = gptService;
         this.sectionService = sectionService;
         this.courseService = courseService;
         this.questionService = questionService;
         this.doQuestionService = doQuestionService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -60,7 +63,8 @@ public class GptController {
     public ApiResponse<QuestionDTO> questionGenerate(@RequestBody QuestionGenerateRequest questionGenerateRequest) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
+            String account = authentication.getName();
+            String userId = String.valueOf(userService.getByAccount(account).getUserId());
 
             QuestionDTO resultQuestion = gptService.questionGenerate(questionGenerateRequest.questionDTO(),questionGenerateRequest.demand(),userId);
             return new ApiResponse<>("200","生成成功",resultQuestion);
@@ -76,7 +80,8 @@ public class GptController {
     @PostMapping("/documentGenerate")
     public Flux<String> documentGenerate(@RequestBody DocumentGenerateRequest documentGenerateRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
+        String account = authentication.getName();
+        String userId = String.valueOf(userService.getByAccount(account).getUserId());
         return gptService.documentGenerate(documentGenerateRequest,userId);
     }
 
@@ -89,7 +94,8 @@ public class GptController {
                                                        @RequestParam("courseId") String courseId) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
+            String account = authentication.getName();
+            String userId = String.valueOf(userService.getByAccount(account).getUserId());
             CourseDetailDTO courseDetailDTO = gptService.courseGenerate(file,demand,userId,Integer.parseInt(courseId));
             //持久化更新
             courseService.updateCourse(courseDetailDTO.course());
@@ -111,7 +117,8 @@ public class GptController {
     public ApiResponse<Void> gradeAnswers(@RequestBody ArrayList<RecordQuestion> recordQuestionList) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
+            String account = authentication.getName();
+            String userId = String.valueOf(userService.getByAccount(account).getUserId());
             //获取做题记录并修改状态
             RecordSet recordSet = doQuestionService.queryRecordSet(recordQuestionList.getFirst().getSetRecordId());
             recordSet.setState("评卷中");

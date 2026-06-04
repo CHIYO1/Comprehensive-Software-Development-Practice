@@ -1,10 +1,12 @@
 package com.scnu.gpt.controller;
 
 import com.scnu.gpt.entity.Document;
+import com.scnu.gpt.entity.User;
 import com.scnu.gpt.entity.Video;
 import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.file.FileQueryDTO;
 import com.scnu.gpt.service.IFileService;
+import com.scnu.gpt.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class FileController {
     @Autowired
     private IFileService fileService;
 
+    @Autowired
+    private IUserService userService;
+
 //    @Operation(
 //            summary = "文件上传",
 //            description = "如题") // 接口注解
@@ -47,8 +52,9 @@ public class FileController {
                                           @RequestParam("cover") MultipartFile cover) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return fileService.uploadTeacherVideo(video,cover,Integer.parseInt(userId));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return fileService.uploadTeacherVideo(video,cover,userId);
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
@@ -62,8 +68,9 @@ public class FileController {
     public ApiResponse<ArrayList<Video>> queryTeacherVideos() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return new ApiResponse<>("200","成功",fileService.queryTeacherVideos(Integer.parseInt(userId)));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return new ApiResponse<>("200","成功",fileService.queryTeacherVideos(userId));
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
@@ -92,8 +99,9 @@ public class FileController {
                                              @RequestParam("documentDesc") String documentDesc ) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return fileService.uploadTeacherDocument(document,documentDesc,Integer.parseInt(userId));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return fileService.uploadTeacherDocument(document,documentDesc,userId);
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
@@ -106,8 +114,9 @@ public class FileController {
     public ApiResponse<ArrayList<Document>> queryTeacherDocuments() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return new ApiResponse<>("200","成功",fileService.queryTeacherDocuments(Integer.parseInt(userId)));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return new ApiResponse<>("200","成功",fileService.queryTeacherDocuments(userId));
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);

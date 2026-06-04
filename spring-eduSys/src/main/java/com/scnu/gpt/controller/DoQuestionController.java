@@ -2,6 +2,7 @@ package com.scnu.gpt.controller;
 
 import com.scnu.gpt.entity.RecordQuestion;
 import com.scnu.gpt.entity.RecordSet;
+import com.scnu.gpt.entity.User;
 import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.question.RecordQuestionDTO;
 import com.scnu.gpt.service.IDoQuestionService;
@@ -30,10 +31,12 @@ import java.util.ArrayList;
 @RequestMapping("/doQuestion")
 public class DoQuestionController {
     private final IDoQuestionService doQuestionService;
+    private final IUserService userService;
 
     // 构造函数依赖注入
-    public DoQuestionController(IDoQuestionService doQuestionService) {
+    public DoQuestionController(IDoQuestionService doQuestionService, IUserService userService) {
         this.doQuestionService = doQuestionService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -56,8 +59,9 @@ public class DoQuestionController {
     public ApiResponse<String> addRecordSet(@RequestBody RecordSet recordSet) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            recordSet.setUserId(Integer.parseInt(userId));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            recordSet.setUserId(userId);
 
             return new ApiResponse<>("200","成功",doQuestionService.addRecoderSet(recordSet));
         }catch (Exception e){
@@ -86,8 +90,9 @@ public class DoQuestionController {
     public ApiResponse<RecordSet> queryRecordSetBySubsection(@RequestBody String subsectionId) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return new ApiResponse<>("200","成功",doQuestionService.queryRecordSetBySubsection(Integer.parseInt(subsectionId),Integer.parseInt(userId)));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return new ApiResponse<>("200","成功",doQuestionService.queryRecordSetBySubsection(Integer.parseInt(subsectionId),userId));
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);

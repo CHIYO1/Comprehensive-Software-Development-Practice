@@ -1,7 +1,9 @@
 package com.scnu.gpt.controller;
 
 import com.scnu.gpt.entity.Conv;
+import com.scnu.gpt.entity.User;
 import com.scnu.gpt.service.ILrnAstService;
+import com.scnu.gpt.service.IUserService;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,12 +20,16 @@ import java.util.Map;
 public class LrnAstController {
     @Autowired
     ILrnAstService lrnAstService;
+
+    @Autowired
+    IUserService userService;
     //获取某用户所有对话
     @PostMapping("getAllConv")
     public Map<String,Object> getAllConv(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        return lrnAstService.getAllConv(Integer.parseInt(userId));
+        String account = authentication.getName();
+        int userId = userService.getByAccount(account).getUserId();
+        return lrnAstService.getAllConv(userId);
     }
     //单轮对话
     @GetMapping("/chat")
@@ -39,14 +45,16 @@ public class LrnAstController {
     @PostMapping("deleteConvs")
     public Map<String,Object> deleteConvs() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        return lrnAstService.deleteConvs(Integer.parseInt(userId));
+        String account = authentication.getName();
+        int userId = userService.getByAccount(account).getUserId();
+        return lrnAstService.deleteConvs(userId);
     }
     //一键更改某用户的所有对话的隐藏状态
     @PostMapping("setConvsAct")
     public Map<String,Object> setConvsActivate(@RequestBody String actState) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        return lrnAstService.setConvsActivate(Integer.parseInt(userId),Integer.parseInt(actState));
+        String account = authentication.getName();
+        int userId = userService.getByAccount(account).getUserId();
+        return lrnAstService.setConvsActivate(userId, Integer.parseInt(actState));
     }
 }

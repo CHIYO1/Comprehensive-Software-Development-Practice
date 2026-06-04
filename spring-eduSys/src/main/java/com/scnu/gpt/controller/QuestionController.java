@@ -4,10 +4,12 @@ import com.scnu.gpt.entity.Question;
 import com.scnu.gpt.entity.QuestionSet;
 import com.scnu.gpt.entity.RecordQuestion;
 import com.scnu.gpt.entity.RecordSet;
+import com.scnu.gpt.entity.User;
 import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.question.QuestionDTO;
 import com.scnu.gpt.pojo.question.QuestionSetDTO;
 import com.scnu.gpt.service.IQuestionService;
+import com.scnu.gpt.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ public class QuestionController {
     @Autowired
     IQuestionService questionService;
 
+    @Autowired
+    IUserService userService;
+
     @Operation(
             summary = "新增一个从属当前登录教师的空试题集,返回该试题集的id",
             description = "如题") // 接口注解
@@ -40,8 +45,9 @@ public class QuestionController {
     public ApiResponse<String> addSet() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return new ApiResponse<>("200","成功",questionService.addSet(Integer.parseInt(userId)));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return new ApiResponse<>("200","成功",questionService.addSet(userId));
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
@@ -55,8 +61,9 @@ public class QuestionController {
     public ApiResponse<ArrayList<QuestionSetDTO>> querySets() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String userId = authentication.getName();
-            return new ApiResponse<>("200","成功",questionService.querySets(Integer.parseInt(userId)));
+            String account = authentication.getName();
+            int userId = userService.getByAccount(account).getUserId();
+            return new ApiResponse<>("200","成功",questionService.querySets(userId));
         }catch (Exception e){
             System.out.println(e.getMessage());
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
