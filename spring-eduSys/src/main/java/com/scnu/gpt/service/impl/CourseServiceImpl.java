@@ -144,6 +144,11 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     }
 
     @Override
+    public int dropCourse(int userId, int courseId) {
+        return courseMapper.dropCourse(userId, courseId);
+    }
+
+    @Override
     public void joinCourse(int userId, int courseId) {
         courseMapper.joinCourse(userId,courseId);
         //获取课程下所有试题小节

@@ -32,6 +32,10 @@ public interface CourseMapper extends BaseMapper<Course> {
     @Insert("INSERT INTO std_crs (user_id, course_id) VALUES (#{userId},#{courseId})")
     void joinCourse(@Param("userId") int userId, @Param("courseId") int courseId);
 
+    //学生退出课程
+    @Delete("DELETE FROM std_crs WHERE user_id = #{userId} AND course_id = #{courseId}")
+    int dropCourse(@Param("userId") int userId, @Param("courseId") int courseId);
+
     //统计章节总数
     @Select("SELECT COUNT(ts.section_id) " +
             "FROM t_section ts " +
