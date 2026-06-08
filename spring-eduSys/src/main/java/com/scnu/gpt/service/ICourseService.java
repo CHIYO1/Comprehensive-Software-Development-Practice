@@ -36,4 +36,12 @@ public interface ICourseService extends IService<Course> {
     ArrayList<CourseStatisticsDTO> queryAllCourse(int i);
 
     void joinCourse(int userId, int courseId);
+
+    /**
+     * 退出课程
+     * @param userId 学生ID
+     * @param courseId 课程ID
+     * @return 受影响行数（0表示未加入该课程）
+     */
+    int dropCourse(int userId, int courseId);
 }
