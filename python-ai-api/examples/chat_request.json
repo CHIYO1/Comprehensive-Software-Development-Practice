@@ -1,0 +1,8 @@
+{
+  "user_id": "2024003",
+  "course_name": "Python编程入门",
+  "chapter_name": "Python基础语法",
+  "question": "Python中列表和元组的区别是什么？",
+  "context": "列表 list 是可变序列，元组 tuple 是不可变序列。列表使用 []，元组使用 ()。",
+  "history": []
+}
