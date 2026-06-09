@@ -53,8 +53,8 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
         Section section = sectionDTO.section();
         sectionMapper.updateById(section);
         //更新本章节关联的知识点列表（先删后增）
-        knowledgeMapper.deleteBySectionId(section.getSectionId());
-        addSectionKnowledge(section.getSectionId(),sectionDTO.knowledgeList());
+        knowledgeMapper.deleteBySectionId(section.getChapterId());
+        addSectionKnowledge(section.getChapterId(),sectionDTO.knowledgeList());
         return new ApiResponse<>("200","成功",null);
     }
 

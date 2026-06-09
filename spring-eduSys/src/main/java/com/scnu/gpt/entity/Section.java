@@ -3,13 +3,12 @@ package com.scnu.gpt.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * <p>
- * 
+ * 章节实体 — 对应 finalDB t_chapter 表
  * </p>
  *
  * @author ldw
@@ -17,27 +16,32 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("t_section")
+@TableName("t_chapter")
 public class Section {
 
     /**
-     * 课程章节
+     * 章节ID
      */
-    @TableId(value = "section_id", type = IdType.AUTO)
-    private Integer sectionId;
+    @TableId(value = "chapter_id", type = IdType.AUTO)
+    private Integer chapterId;
 
     /**
-     * 章节标题
+     * 章节名称
      */
-    private String sectionName="";
+    private String chapterName = "";
 
     /**
      * 章节描述
      */
-    private String sectionDesc="";
+    private String chapterDescription;
 
     /**
      * 外键-该章节所属的课程
      */
     private Integer courseId;
+
+    /**
+     * 章节顺序
+     */
+    private Integer chapterOrder;
 }

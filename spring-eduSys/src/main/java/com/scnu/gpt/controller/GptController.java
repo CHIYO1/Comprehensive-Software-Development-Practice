@@ -101,7 +101,7 @@ public class GptController {
             courseService.updateCourse(courseDetailDTO.course());
             for (SectionDTO sectionDTO : courseDetailDTO.sectionList()){
                 sectionService.addSection(sectionDTO.section());
-                sectionService.addSectionKnowledge(sectionDTO.section().getSectionId(),sectionDTO.knowledgeList());
+                sectionService.addSectionKnowledge(sectionDTO.section().getChapterId(),sectionDTO.knowledgeList());
             }
             return new ApiResponse<>("200","上传成功",courseDetailDTO);
         }catch (Exception e){

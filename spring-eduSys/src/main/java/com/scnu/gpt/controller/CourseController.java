@@ -71,7 +71,7 @@ public class CourseController {
             String account = authentication.getName();
             User user = userService.getByAccount(account);
             Course course = new Course();
-            course.setUserId(user.getUserId());
+            course.setTeacherId(user.getUserId());
             return new ApiResponse<>("200","成功",courseService.addCourse(course));
         }catch (Exception e){
             System.out.println(e.getMessage());
@@ -111,7 +111,7 @@ public class CourseController {
                 ArrayList<MultipartFile> fileArrayList = new ArrayList<>();
                 fileArrayList.add(coverFile);
                 String coverPath = fileService.uploadFile(fileArrayList).getFirst();
-                course.setCoverPath(coverPath);
+                course.setCoverImage(coverPath);
             }
             return courseService.updateCourse(course);
         }catch (Exception e){
