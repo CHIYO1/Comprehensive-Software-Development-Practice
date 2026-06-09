@@ -1,34 +1,62 @@
+// import { defineStore } from 'pinia'
+// import Cookies from 'js-cookie'
+
+// export const useAuthStore = defineStore('auth', {
+//   state: () => ({
+//     userId:null,
+//     userName:'' ,
+//     role: '',            
+//   }),
+//   actions: {
+//     loginSuccess(response) {
+//       Cookies.set('token', response.token, { secure: true, expires: 7 })
+//       this.userId = response.userId
+//       this.userName = response.userName
+//       this.role = response.role
+//     },
+//     //判断角色权限是否相符
+//     isRole(requiredRole) {
+//       // console.log("role:"+this.role+";reuqired："+requiredRole)
+//       return this.role === requiredRole;
+//     },
+//     // 是否登录且有认证token
+//     isAuthenticated() {
+//       // console.log("token:"+Cookies.get('token')+" ;userid:"+this.userId)
+//       return !!Cookies.get('token') && !!this.userId
+//     },
+//     // 退出登录
+//     logout() {
+//       Cookies.remove('token')
+//       this.$reset() 
+//     }
+//   },
+//   persist: true, 
+// })
+
+
 import { defineStore } from 'pinia'
-import Cookies from 'js-cookie'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    userId:null,
-    userName:'' ,
-    role: '',            
+    token: localStorage.getItem('token') || '',
+    userInfo: JSON.parse(localStorage.getItem('userInfo')) || {}
   }),
+
   actions: {
-    loginSuccess(response) {
-      Cookies.set('token', response.token, { secure: true, expires: 7 })
-      this.userId = response.userId
-      this.userName = response.userName
-      this.role = response.role
+    loginSuccess(data) {
+      this.token = data.token
+      this.userInfo = data
+
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('userInfo', JSON.stringify(data))
     },
-    //判断角色权限是否相符
-    isRole(requiredRole) {
-      // console.log("role:"+this.role+";reuqired："+requiredRole)
-      return this.role === requiredRole;
-    },
-    // 是否登录且有认证token
-    isAuthenticated() {
-      // console.log("token:"+Cookies.get('token')+" ;userid:"+this.userId)
-      return !!Cookies.get('token') && !!this.userId
-    },
-    // 退出登录
+
     logout() {
-      Cookies.remove('token')
-      this.$reset() 
+      this.token = ''
+      this.userInfo = {}
+
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
     }
-  },
-  persist: true, 
+  }
 })

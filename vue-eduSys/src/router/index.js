@@ -13,7 +13,7 @@ const routes = [
   {
     path: '/',
     name: 'index',
-    component: () => import('@/views/IndexPage.vue'),
+    component: () => import('@/views/Login/UserLogin.vue'),
     children: [
       // 教师端
       {
