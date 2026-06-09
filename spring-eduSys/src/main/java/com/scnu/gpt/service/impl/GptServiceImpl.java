@@ -153,13 +153,13 @@ public class GptServiceImpl implements IGptService {
         ArrayList<SectionDTO> sections = new ArrayList<>();
 
         course.setCourseName(jsonOutput.get("courseName").asText());
-        course.setCourseDesc(jsonOutput.get("courseDesc").asText());
+        course.setDescription(jsonOutput.get("courseDesc").asText());
         ArrayNode arrayNode = (ArrayNode) jsonOutput.get("sectionList");
         for (JsonNode element : arrayNode) {
             Section section = new Section();
             section.setCourseId(courseId);
-            section.setSectionName(element.get("sectionName").asText());
-            section.setSectionDesc(element.get("sectionDesc").asText());
+            section.setChapterName(element.get("sectionName").asText());
+            section.setChapterDescription(element.get("sectionDesc").asText());
             ArrayList<String> knowledges = mapper.convertValue(element.get("knowledgeList"),
                     new TypeReference<>() {
                     });
