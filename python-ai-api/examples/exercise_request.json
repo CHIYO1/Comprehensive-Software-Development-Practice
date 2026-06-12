@@ -1,0 +1,12 @@
+{
+  "course_id": "1",
+  "course_name": "Python编程入门",
+  "chapter_id": "1",
+  "chapter_name": "Python基础语法",
+  "question_type": "single_choice",
+  "question_count": 3,
+  "difficulty": 2,
+  "knowledge_points": ["变量命名", "数据类型", "列表"],
+  "context": "本章学习 Python 变量、数字、字符串、列表、元组和字典等基础知识。",
+  "extra_requirements": "题目适合初学者，避免过难。"
+}
