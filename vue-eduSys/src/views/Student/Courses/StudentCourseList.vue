@@ -104,8 +104,12 @@
               <span class="stat-value">{{ course.progress || 0 }}%</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">作业完成</span>
-              <span class="stat-value">{{ course.homeworkCompleted || 0 }}/{{ course.totalHomework || 0 }}</span>
+              <!-- <span class="stat-label">作业完成</span>
+              <span class="stat-value">{{ course.homeworkCompleted || 0 }}/{{ course.totalHomework || 0 }}</span> -->
+              <span class="stat-label">课程章节</span>
+              <span class="stat-value">
+                {{ course.sectionNum || 0 }}
+              </span>
             </div>
             <div class="stat-item">
               <span class="stat-label">考试成绩</span>
@@ -145,190 +149,266 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Document, Clock, Trophy, Star, User, UserFilled, Calendar } from '@element-plus/icons-vue';
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  Document,
+  Clock,
+  Trophy,
+  Star,
+  User,
+  UserFilled,
+  Calendar
+} from '@element-plus/icons-vue'
 
-const router = useRouter();
+import { queryMyCourses, dropCourseApi  } from '@/api/course'
+import { useAuthStore } from '@/store/auth'
+
+const router = useRouter()
 
 const activeTab = ref('all')
 const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = ref(8)
 
+const coverList = [
+  'https://image-cdn.tuchong.com/weili/image/l/2153901102248493063.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/2093654891623219200.jpeg',
+  'https://image-cdn.tuchong.com/weili/l/2113862558194991116.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/2314040203495473165.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/2146817258150166540.jpeg',
+  'https://image-cdn.tuchong.com/weili/l/2180383432623915013.jpeg',
+  'https://image-cdn.tuchong.com/weili/l/963123910559268959.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/1942752512861011982.jpeg'
+]
+
 // 课程统计数据
 const courseStats = ref({
-  totalCourses: 8,
-  ongoingCourses: 5,
-  completedCourses: 2,
-  avgScore: 85.5
+  totalCourses: 0,
+  ongoingCourses: 0,
+  completedCourses: 0,
+  avgScore: 0
 })
 
-// 假数据，实际开发请用接口获取
-const allCourses = ref([
-  {
-    id: 1,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2153901102248493063.jpeg',
-    title: 'Web前端开发基础',
-    desc: 'HTML、CSS、JavaScript基础入门，掌握网页开发核心技术',
-    teacher: '王明华',
-    students: 156,
-    status: '进行中',
-    startDate: '2024-01-15',
-    progress: 75,
-    homeworkCompleted: 8,
-    totalHomework: 12,
-    score: 88
-  },
-  {
-    id: 2,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2093654891623219200.jpeg',
-    title: 'Vue.js框架开发',
-    desc: 'Vue.js组件化开发，Vue Router路由管理，Vuex状态管理',
-    teacher: '李志强',
-    students: 89,
-    status: '进行中',
-    startDate: '2024-01-20',
-    progress: 60,
-    homeworkCompleted: 6,
-    totalHomework: 10,
-    score: 92
-  },
-  {
-    id: 3,
-    cover: 'https://image-cdn.tuchong.com/weili/l/2113862558194991116.jpeg',
-    title: 'React前端开发',
-    desc: 'React Hooks、组件生命周期、状态管理、性能优化',
-    teacher: '张伟',
-    students: 67,
-    status: '已结束',
-    startDate: '2023-11-15',
-    progress: 100,
-    homeworkCompleted: 15,
-    totalHomework: 15,
-    score: 95
-  },
-  {
-    id: 4,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2314040203495473165.jpeg',
-    title: 'Python数据分析',
-    desc: 'pandas数据处理、numpy数值计算、matplotlib数据可视化',
-    teacher: '陈思思',
-    students: 134,
-    status: '待开始',
-    startDate: '2024-03-01',
-    progress: 0,
-    homeworkCompleted: 0,
-    totalHomework: 8,
-    score: '--'
-  },
-  {
-    id: 5,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2146817258150166540.jpeg',
-    title: 'Java Web开发',
-    desc: 'Spring Boot框架、MyBatis持久层、MySQL数据库设计',
-    teacher: '刘建国',
-    students: 98,
-    status: '进行中',
-    startDate: '2024-01-10',
-    progress: 45,
-    homeworkCompleted: 4,
-    totalHomework: 12,
-    score: 78
-  },
-  {
-    id: 6,
-    cover: 'https://image-cdn.tuchong.com/weili/l/2180383432623915013.jpeg',
-    title: '数据结构与算法',
-    desc: '线性表、栈、队列、树、图、排序算法、查找算法',
-    teacher: '赵敏',
-    students: 203,
-    status: '已结束',
-    startDate: '2023-10-15',
-    progress: 100,
-    homeworkCompleted: 20,
-    totalHomework: 20,
-    score: 90
-  },
-  {
-    id: 7,
-    cover: 'https://image-cdn.tuchong.com/weili/l/963123910559268959.jpeg',
-    title: '移动端开发',
-    desc: '微信小程序开发、uni-app跨平台开发、移动端适配',
-    teacher: '孙丽丽',
-    students: 76,
-    status: '待开始',
-    startDate: '2024-03-15',
-    progress: 0,
-    homeworkCompleted: 0,
-    totalHomework: 6,
-    score: '--'
-  },
-  {
-    id: 8,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/1942752512861011982.jpeg',
-    title: 'DevOps运维开发',
-    desc: 'Docker容器化、Kubernetes编排、CI/CD自动化部署',
-    teacher: '周建军',
-    students: 45,
-    status: '待开始',
-    startDate: '2024-04-01',
-    progress: 0,
-    homeworkCompleted: 0,
-    totalHomework: 4,
-    score: '--'
+// 课程列表
+const allCourses = ref([])
+
+// 获取课程状态
+// const getCourseStatus = (startDate) => {
+//   if (!startDate) return '进行中'
+
+//   const today = new Date()
+//   const start = new Date(startDate)
+
+//   if (start > today) {
+//     return '待开始'
+//   }
+
+//   return '进行中'
+// }
+
+// 获取课程列表
+const loadCourseList = async () => {
+  try {
+
+    const authStore = useAuthStore()
+
+    const userId = authStore.userId
+
+    const res = await queryMyCourses(userId)
+
+    if (res.data.code !== '200') {
+      ElMessage.error(res.data.message || '获取课程失败')
+      return
+    }
+
+    const courses = res.data.data?.courses || []
+
+    allCourses.value = courses.map(item => {
+
+      let progress = 0
+
+      if (
+        item.progress &&
+        item.progress.total_lessons > 0
+      ) {
+        progress = Math.round(
+          item.progress.completed_lessons /
+            item.progress.total_lessons *
+            100
+        )
+      }
+
+      // 判断课程状态
+      let status = '进行中'
+
+      const today = new Date()
+      const startDate = new Date(item.start_date)
+      const endDate = new Date(item.end_date)
+
+      if (today < startDate) {
+        status = '待开始'
+      } else if (today > endDate) {
+        status = '已结束'
+      }
+
+      return {
+        id: item.course_id,
+
+        cover:
+          coverList[
+            (item.course_id - 1) %
+              coverList.length
+          ],
+
+        title: item.course_name,
+
+        desc: item.description,
+
+        teacher: item.teacher_name,
+
+        students: item.student_count,
+
+        startDate: item.start_date,
+
+        status,
+
+        progress,
+
+        homeworkCompleted:
+          item.homework?.completed || 0,
+
+        totalHomework:
+          item.homework?.total || 0,
+
+        score: item.score || '--',
+
+        sectionNum:
+          item.progress?.total_lessons || 0
+      }
+    })
+
+    updateCourseStats()
+
+  } catch (error) {
+    console.error(error)
+    ElMessage.error('获取课程列表失败')
   }
-])
+}
+
+// 更新统计信息
+const updateCourseStats = () => {
+  const list = allCourses.value
+
+  courseStats.value.totalCourses = list.length
+
+  courseStats.value.ongoingCourses =
+    list.filter(item => item.status === '进行中').length
+
+  courseStats.value.completedCourses =
+    list.filter(item => item.status === '已结束').length
+
+  const scores = list
+    .map(item => Number(item.score))
+    .filter(item => !isNaN(item))
+
+  courseStats.value.avgScore =
+    scores.length > 0
+      ? (
+          scores.reduce((sum, item) => sum + item, 0) / scores.length
+        ).toFixed(1)
+      : 0
+}
 
 // 获取状态类型
 const getStatusType = (status) => {
   const statusMap = {
-    '进行中': 'success',
-    '已结束': 'info',
-    '待开始': 'warning'
+    进行中: 'success',
+    已结束: 'info',
+    待开始: 'warning'
   }
   return statusMap[status] || 'info'
 }
 
 // 进入课程
 const enterCourse = (courseId) => {
-  // 跳转到课程学习页面
-          router.push({ name: 'courseStudy', params: { courseId } })
+  const authStore = useAuthStore()
+
+  console.log('======================')
+  console.log('进入课程点击')
+  console.log('courseId:', courseId)
+  console.log('当前token:', authStore.token)
+  console.log('userInfo:', authStore.userInfo)
+  console.log('======================')
+
+  router.push({
+    name: 'courseStudy',
+    params: { courseId }
+  })
 }
 
 // 查看学习进度
-// eslint-disable-next-line no-unused-vars
 const viewProgress = (courseId) => {
+  console.log(courseId)
   ElMessage.info('学习进度功能开发中...')
 }
 
 // 退课
 const dropCourse = async (courseId) => {
   try {
-    await ElMessageBox.confirm('确定要退课吗？此操作不可撤销！', '警告', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+    await ElMessageBox.confirm(
+      '确定要退课吗？此操作不可撤销！',
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    const authStore = useAuthStore()
+
+    const res = await dropCourseApi({
+      student_id: authStore.userId,
+      course_id: courseId
     })
-    
-    // 模拟退课操作
-    const index = allCourses.value.findIndex(course => course.id === courseId)
+
+    if (res.data.code !== '200') {
+      ElMessage.error(res.data.message || '退课失败')
+      return
+    }
+
+    // 前端同步删除
+    const index = allCourses.value.findIndex(
+      course => course.id === courseId
+    )
+
     if (index > -1) {
       allCourses.value.splice(index, 1)
-      ElMessage.success('退课成功')
+      updateCourseStats()
     }
+
+    ElMessage.success('退课成功')
+
   } catch (error) {
-    // 用户取消操作
+    // 用户取消 or 请求失败
+    if (error !== 'cancel') {
+      console.error(error)
+      ElMessage.error('退课失败')
+    }
   }
 }
 
+// 搜索
 const handleSearch = () => {
   currentPage.value = 1
 }
 
+// 筛选
 const filterList = computed(() => {
   let list = allCourses.value
+
   if (activeTab.value === 'ongoing') {
     list = list.filter(c => c.status === '进行中')
   } else if (activeTab.value === 'finished') {
@@ -336,21 +416,35 @@ const filterList = computed(() => {
   } else if (activeTab.value === 'pending') {
     list = list.filter(c => c.status === '待开始')
   }
+
   if (searchQuery.value) {
-    list = list.filter(c => c.title.includes(searchQuery.value))
+    list = list.filter(c =>
+      c.title.includes(searchQuery.value)
+    )
   }
+
   return list
 })
 
+// 当前页数据
 const currentPageData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
+  const start =
+    (currentPage.value - 1) * pageSize.value
+
   const end = start + pageSize.value
+
   return filterList.value.slice(start, end)
 })
 
+// 分页
 const handleCurrentChange = (newPage) => {
   currentPage.value = newPage
 }
+
+// 页面加载
+onMounted(() => {
+  loadCourseList()
+})
 </script>
 
 <style scoped>

@@ -18,8 +18,18 @@
     <el-col :span="2">
       <div class="header-right">
         <el-icon class="header-icon"><Bell /></el-icon>
-        <img class="header-avatar" src="https://img2.baidu.com/it/u=3049483413,931302730&fm=253&fmt=auto&app=120&f=JPEG?w=506&h=500" alt="avatar" />
-        <span class="header-name">派大星</span>
+        <el-dropdown trigger="click" @command="handleCommand">
+        <div class="user-box">
+          <img class="header-avatar" :src="avatarImg" alt="avatar" />
+          <span class="header-name">{{ userName || '未登录用户' }}</span>
+        </div>
+
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
       </div>
     </el-col>
   </el-row>
@@ -29,8 +39,23 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Menu, Bell } from '@element-plus/icons-vue';
+import { useAuthStore } from '@/store/auth'
+import avatarImg from '@/assets/头像.jpg'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const authStore = useAuthStore()
+
+const handleCommand = (command) => {
+  if (command === 'logout') {
+    authStore.logout()
+    ElMessage.success('已退出登录')
+    router.push('/login')
+  }
+}
+
+const userName = authStore.userName
+
 const route = useRoute()
 
 const isTeacher = computed(() => route.path.startsWith('/teacher'))
@@ -39,8 +64,8 @@ const isAdmin = computed(() => route.path.startsWith('/admin'))
 
 const teacherTabs = [
   { index: 'MyCourse', label: '我的课程' },
-  { index: 'courseResource', label: '教师资源' },
-  { index: 'questionBank', label: '试题集' }
+  // { index: 'courseResource', label: '教师资源' },
+  // { index: 'questionBank', label: '试题集' }
 ]
 const studentTabs = [
   { index: 'studentCourses', label: '我的课程' },
@@ -85,6 +110,13 @@ const handleSelect = (index) => {
 </script>
 
 <style scoped>
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
 .layout-header {
   display: flex;
   align-items: center;
@@ -111,6 +143,7 @@ const handleSelect = (index) => {
   height: 100%;
   gap: 18px;
   margin-right: 16px;
+  white-space: nowrap;
 }
 .header-icon {
   font-size: 22px;

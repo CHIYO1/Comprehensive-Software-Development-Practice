@@ -69,8 +69,8 @@
         <div class="course-header">
           <el-image class="course-cover" :src="course.cover" fit="cover" />
           <div class="course-status">
-            <el-tag :type="getStatusType(course.status)" size="small">
-              {{ course.status }}
+            <el-tag :type="getStatusType(getStatus(course))">
+              {{ getStatus(course) }}
             </el-tag>
           </div>
           <div class="course-rating" v-if="course.rating">
@@ -116,8 +116,16 @@
           
           <div class="course-footer">
             <div class="course-actions">
-              <el-button type="primary" size="small" @click="joinCourse(course.id)">
+              <!-- <el-button type="primary" size="small" @click="joinCourse(course.id)">
                 加入课程
+              </el-button> -->
+              <el-button
+                type="primary"
+                size="small"
+                :disabled="course.joined"
+                @click="joinCourse(course.id)"
+              >
+                {{ course.joined ? '已加入' : '加入课程' }}
               </el-button>
               <el-button size="small" @click="viewDetails(course.id)">
                 课程详情
@@ -146,204 +154,217 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Document, Clock, Calendar, User, UserFilled } from '@element-plus/icons-vue';
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Document, Clock, Calendar, User, UserFilled } from '@element-plus/icons-vue'
+
+import { queryAllCourse, enrollCourse  } from '@/api/course'
+import { useAuthStore } from '@/store/auth'
 
 const activeTab = ref('all')
 const searchQuery = ref('')
 const currentPage = ref(1)
 const pageSize = ref(8)
 
-// 课程统计数据
+const allCourses = ref([])
+
+const authStore = useAuthStore()
+
+const userId = authStore.userId
+
 const courseStats = ref({
-  totalCourses: 15,
-  ongoingCourses: 8,
-  upcomingCourses: 4,
-  totalStudents: 1250
+  totalCourses: 0,
+  ongoingCourses: 0,
+  upcomingCourses: 0,
+  totalStudents: 0
 })
 
-// 假数据，实际开发请用接口获取
-const allCourses = ref([
-  {
-    id: 1,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2153901102248493063.jpeg',
-    title: 'Web前端开发基础',
-    desc: 'HTML、CSS、JavaScript基础入门，掌握网页开发核心技术，包含DOM操作、事件处理、AJAX异步请求',
-    teacher: '王明华',
-    students: 156,
-    status: '进行中',
-    startDate: '2024-01-15',
-    duration: '8周',
-    difficulty: 2,
-    category: '前端开发',
-    rating: 4.8
-  },
-  {
-    id: 2,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2093654891623219200.jpeg',
-    title: 'Vue.js框架开发',
-    desc: 'Vue.js组件化开发，Vue Router路由管理，Vuex状态管理，Vue CLI脚手架工具',
-    teacher: '李志强',
-    students: 89,
-    status: '进行中',
-    startDate: '2024-01-20',
-    duration: '10周',
-    difficulty: 3,
-    category: '前端开发',
-    rating: 4.6
-  },
-  {
-    id: 3,
-    cover: 'https://image-cdn.tuchong.com/weili/l/2113862558194991116.jpeg',
-    title: 'React前端开发',
-    desc: 'React Hooks、组件生命周期、状态管理、性能优化、Redux状态管理',
-    teacher: '张伟',
-    students: 67,
-    status: '即将开始',
-    startDate: '2024-02-01',
-    duration: '12周',
-    difficulty: 3,
-    category: '前端开发',
-    rating: 4.5
-  },
-  {
-    id: 4,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2314040203495473165.jpeg',
-    title: 'Python数据分析',
-    desc: 'pandas数据处理、numpy数值计算、matplotlib数据可视化、scikit-learn机器学习',
-    teacher: '陈思思',
-    students: 134,
-    status: '即将开始',
-    startDate: '2024-02-15',
-    duration: '6周',
-    difficulty: 2,
-    category: '数据分析',
-    rating: 4.7
-  },
-  {
-    id: 5,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/2146817258150166540.jpeg',
-    title: 'Java Web开发',
-    desc: 'Spring Boot框架、MyBatis持久层、MySQL数据库设计、RESTful API设计',
-    teacher: '刘建国',
-    students: 98,
-    status: '进行中',
-    startDate: '2024-01-10',
-    duration: '16周',
-    difficulty: 3,
-    category: '后端开发',
-    rating: 4.7
-  },
-  {
-    id: 6,
-    cover: 'https://image-cdn.tuchong.com/weili/l/2180383432623915013.jpeg',
-    title: '数据结构与算法',
-    desc: '线性表、栈、队列、树、图、排序算法、查找算法、算法复杂度分析',
-    teacher: '赵敏',
-    students: 203,
-    status: '已结束',
-    startDate: '2023-10-15',
-    duration: '10周',
-    difficulty: 3,
-    category: '计算机基础',
-    rating: 4.9
-  },
-  {
-    id: 7,
-    cover: 'https://image-cdn.tuchong.com/weili/l/963123910559268959.jpeg',
-    title: '移动端开发',
-    desc: '微信小程序开发、uni-app跨平台开发、移动端适配、H5移动端开发',
-    teacher: '孙丽丽',
-    students: 76,
-    status: '即将开始',
-    startDate: '2024-03-15',
-    duration: '6周',
-    difficulty: 2,
-    category: '移动开发',
-    rating: 4.4
-  },
-  {
-    id: 8,
-    cover: 'https://image-cdn.tuchong.com/weili/image/l/1942752512861011982.jpeg',
-    title: 'DevOps运维开发',
-    desc: 'Docker容器化、Kubernetes编排、CI/CD自动化部署、Linux服务器管理',
-    teacher: '周建军',
-    students: 45,
-    status: '即将开始',
-    startDate: '2024-04-01',
-    duration: '4周',
-    difficulty: 3,
-    category: '运维部署',
-    rating: 4.6
-  }
-])
+const coverList = [
+  'https://image-cdn.tuchong.com/weili/image/l/2153901102248493063.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/2093654891623219200.jpeg',
+  'https://image-cdn.tuchong.com/weili/l/2113862558194991116.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/2314040203495473165.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/2146817258150166540.jpeg',
+  'https://image-cdn.tuchong.com/weili/l/2180383432623915013.jpeg',
+  'https://image-cdn.tuchong.com/weili/l/963123910559268959.jpeg',
+  'https://image-cdn.tuchong.com/weili/image/l/1942752512861011982.jpeg'
+]
 
-// 获取状态类型
-const getStatusType = (status) => {
-  const statusMap = {
-    '进行中': 'success',
-    '即将开始': 'warning',
-    '已结束': 'info'
+/**
+ * 加载课程列表（已统一兼容后端返回结构）
+ */
+const loadCourses = async () => {
+  try {
+    const res = await queryAllCourse()
+
+    // ✅ 兼容三种可能结构（关键修复点）
+    const list =
+      res?.data?.data ||
+      res?.data ||
+      []
+
+    if (!Array.isArray(list)) {
+      console.error('课程接口返回结构异常：', res)
+      ElMessage.error('课程数据格式异常')
+      return
+    }
+
+    allCourses.value = list.map(item => ({
+      id: item.course?.courseId,
+
+      cover:
+        coverList[
+          ((item.course?.courseId || 1) - 1) % coverList.length
+        ],
+
+      title: item.course?.courseName || '未命名课程',
+      desc: item.course?.description || '暂无描述',
+      teacher: item.teacherName || '未知教师',
+      students: item.studentNum || 0,
+
+      startDate: item.course?.startDate || '--',
+      duration: `${item.course?.weeks || 0}周`,
+      difficulty: item.course?.difficulty || 1,
+      category: item.course?.courseType || '未分类',
+      rating: Number(item.course?.score || 0),
+
+      joined: item.ifJoin === 1,
+      raw: item
+    }))
+
+    // ✅ 统计
+    courseStats.value.totalCourses = allCourses.value.length
+
+    courseStats.value.totalStudents = allCourses.value.reduce(
+      (sum, item) => sum + (item.students || 0),
+      0
+    )
+
+    courseStats.value.ongoingCourses = allCourses.value.length
+    courseStats.value.upcomingCourses = 0
+
+  } catch (e) {
+    console.error('加载课程失败：', e)
+    ElMessage.error('获取课程列表失败')
   }
-  return statusMap[status] || 'info'
 }
 
-// 加入课程
-// eslint-disable-next-line no-unused-vars
+onMounted(() => {
+  loadCourses()
+})
+
+/**
+ * 状态显示
+ */
+const getStatus = (course) => {
+  return course.joined ? '已加入' : '可选'
+}
+
+const getStatusType = (status) => {
+  const map = {
+    已加入: 'success',
+    可选: 'warning'
+  }
+  return map[status] || 'info'
+}
+
+/**
+ * 加入课程
+ */
 const joinCourse = async (courseId) => {
   try {
-    await ElMessageBox.confirm('确定要加入这个课程吗？', '确认加入', {
-      confirmButtonText: '确定加入',
-      cancelButtonText: '取消',
-      type: 'info'
+    const studentId = userId
+
+    if (!studentId) {
+      ElMessage.error('未获取到用户信息，请重新登录')
+      return
+    }
+
+    await ElMessageBox.confirm(
+      '确定要加入这个课程吗？',
+      '确认加入',
+      {
+        confirmButtonText: '确定加入',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+
+    const res = await enrollCourse({
+      student_id: studentId,
+      course_id: courseId
     })
-    
-    ElMessage.success('成功加入课程！')
+
+    if (res.data.code !== '200') {
+      ElMessage.error(res.data.message || '加入失败')
+      return
+    }
+
+    ElMessage.success('加入课程成功')
+
+    // 关键：直接更新状态，不用整页刷新
+    const target = allCourses.value.find(c => c.id === courseId)
+    if (target) {
+      target.joined = true
+    }
+
   } catch (error) {
-    // 用户取消操作
+    console.log(error)
   }
 }
 
-// 查看课程详情
-// eslint-disable-next-line no-unused-vars
+/**
+ * 查看详情
+ */
 const viewDetails = (courseId) => {
+  console.log(courseId)
   ElMessage.info('课程详情功能开发中...')
 }
 
-// 课程预览
-// eslint-disable-next-line no-unused-vars
+/**
+ * 预览
+ */
 const previewCourse = (courseId) => {
+  console.log(courseId)
   ElMessage.info('课程预览功能开发中...')
 }
 
+/**
+ * 搜索
+ */
 const handleSearch = () => {
   currentPage.value = 1
 }
 
+/**
+ * 过滤
+ */
 const filterList = computed(() => {
   let list = allCourses.value
-  if (activeTab.value === 'ongoing') {
-    list = list.filter(c => c.status === '进行中')
-  } else if (activeTab.value === 'upcoming') {
-    list = list.filter(c => c.status === '即将开始')
-  } else if (activeTab.value === 'finished') {
-    list = list.filter(c => c.status === '已结束')
-  }
+
   if (searchQuery.value) {
-    list = list.filter(c => c.title.includes(searchQuery.value))
+    list = list.filter(item =>
+      item.title.includes(searchQuery.value)
+    )
   }
+
   return list
 })
 
+/**
+ * 分页数据
+ */
 const currentPageData = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   const end = start + pageSize.value
   return filterList.value.slice(start, end)
 })
 
-const handleCurrentChange = (newPage) => {
-  currentPage.value = newPage
+/**
+ * 分页切换
+ */
+const handleCurrentChange = (page) => {
+  currentPage.value = page
 }
 </script>
 

@@ -259,7 +259,10 @@ import {
   Plus, VideoPlay, Document, Folder, Download, Search, 
   Calendar, View, Edit, Delete, Files 
 } from '@element-plus/icons-vue'
+
 import { RESOURCE_TYPES } from '@/constants/resourceTypes';
+
+
 import VideoUploadDialog from '@/components/file/VideoUpload.vue';
 import VideoPlayDialog from '@/components/file/VideoPlay.vue';
 import DocumentUploadDialog from '@/components/file/DocumentUpload.vue';
@@ -290,8 +293,8 @@ const resourceStats = ref({
 })
 
 onMounted(() => {
-    getVideos();
-    getDocuments();
+    // getVideos();
+    // getDocuments();
     updateStats();
 });
 

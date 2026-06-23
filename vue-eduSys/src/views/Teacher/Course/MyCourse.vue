@@ -53,7 +53,7 @@
                         <el-tab-pane label="全部课程" name="all" />
                         <el-tab-pane label="进行中" name="ongoing" />
                         <el-tab-pane label="已结束" name="finished" />
-                        <el-tab-pane label="草稿" name="draft" />
+                        <!-- <el-tab-pane label="草稿" name="draft" /> -->
                     </el-tabs>
                 </div>
                 <div class="search">
@@ -113,9 +113,9 @@
                             <el-button type="primary" size="small" @click="editCourse(courseDTO.course.courseId)">
                                 编辑课程
                             </el-button>
-                            <el-button size="small" @click="viewAnalytics(courseDTO.course.courseId)">
+                            <!-- <el-button size="small" @click="viewAnalytics(courseDTO.course.courseId)">
                                 数据分析
-                            </el-button>
+                            </el-button> -->
                         </div>
                     </div>
                 </div>
@@ -141,7 +141,10 @@ import { ref, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Plus, User, Memo, Document, Clock, Star, View } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router';
-import request from '@/utils/request.js'
+import { queryCourseByTeacherId } from '@/api/course'
+import { useAuthStore } from '@/store/auth'
+
+const authStore = useAuthStore()
 
 const router = useRouter()
 
@@ -155,123 +158,51 @@ const courseStats = ref({
     avgRating: 4.6
 })
 
-// 假数据 - 课程列表
-const courseDTOList = ref([
-    {
-        course: {
-            courseId: 1,
-            courseName: 'Web前端开发基础',
-            courseDesc: 'HTML、CSS、JavaScript基础入门，掌握网页开发核心技术',
-            coverPath: 'https://image-cdn.tuchong.com/weili/image/l/2153901102248493063.jpeg',
-            status: 'ongoing',
-            viewCount: 1250,
-            rating: 4.8
-        },
-        sectionNum: 15,
-        studentNum: 156
-    },
-    {
-        course: {
-            courseId: 2,
-            courseName: 'Vue.js框架开发',
-            courseDesc: 'Vue.js组件化开发，Vue Router路由管理，Vuex状态管理',
-            coverPath: 'https://image-cdn.tuchong.com/weili/image/l/2093654891623219200.jpeg',
-            status: 'ongoing',
-            viewCount: 980,
-            rating: 4.6
-        },
-        sectionNum: 12,
-        studentNum: 89
-    },
-    {
-        course: {
-            courseId: 3,
-            courseName: 'React前端开发',
-            courseDesc: 'React Hooks、组件生命周期、状态管理、性能优化',
-            coverPath: 'https://image-cdn.tuchong.com/weili/l/2113862558194991116.jpeg',
-            status: 'finished',
-            viewCount: 756,
-            rating: 4.5
-        },
-        sectionNum: 18,
-        studentNum: 67
-    },
-    {
-        course: {
-            courseId: 4,
-            courseName: 'Python数据分析',
-            courseDesc: 'pandas数据处理、numpy数值计算、matplotlib数据可视化',
-            coverPath: 'https://image-cdn.tuchong.com/weili/image/l/2314040203495473165.jpeg',
-            status: 'draft',
-            viewCount: 0,
-            rating: 0
-        },
-        sectionNum: 8,
-        studentNum: 0
-    },
-    {
-        course: {
-            courseId: 5,
-            courseName: 'Java Web开发',
-            courseDesc: 'Spring Boot框架、MyBatis持久层、MySQL数据库设计',
-            coverPath: 'https://image-cdn.tuchong.com/weili/image/l/2146817258150166540.jpeg',
-            status: 'ongoing',
-            viewCount: 890,
-            rating: 4.7
-        },
-        sectionNum: 20,
-        studentNum: 98
-    },
-    {
-        course: {
-            courseId: 6,
-            courseName: '数据结构与算法',
-            courseDesc: '线性表、栈、队列、树、图、排序算法、查找算法',
-            coverPath: 'https://image-cdn.tuchong.com/weili/l/2180383432623915013.jpeg',
-            status: 'finished',
-            viewCount: 1200,
-            rating: 4.9
-        },
-        sectionNum: 16,
-        studentNum: 203
-    },
-    {
-        course: {
-            courseId: 7,
-            courseName: '移动端开发',
-            courseDesc: '微信小程序开发、uni-app跨平台开发、移动端适配',
-            coverPath: 'https://image-cdn.tuchong.com/weili/l/963123910559268959.jpeg',
-            status: 'draft',
-            viewCount: 0,
-            rating: 0
-        },
-        sectionNum: 10,
-        studentNum: 0
-    },
-    {
-        course: {
-            courseId: 8,
-            courseName: 'DevOps运维开发',
-            courseDesc: 'Docker容器化、Kubernetes编排、CI/CD自动化部署',
-            coverPath: 'https://image-cdn.tuchong.com/weili/image/l/1942752512861011982.jpeg',
-            status: 'draft',
-            viewCount: 0,
-            rating: 0
-        },
-        sectionNum: 6,
-        studentNum: 0
-    }
-])
+const courseDTOList = ref([])
 
-onMounted(() => {
-    // getCourseList();
-});
+const coverList = [
+    'https://image-cdn.tuchong.com/weili/image/l/2153901102248493063.jpeg',
+    'https://image-cdn.tuchong.com/weili/image/l/2093654891623219200.jpeg',
+    'https://image-cdn.tuchong.com/weili/l/2113862558194991116.jpeg',
+    'https://image-cdn.tuchong.com/weili/image/l/2314040203495473165.jpeg',
+    'https://image-cdn.tuchong.com/weili/image/l/2146817258150166540.jpeg',
+    'https://image-cdn.tuchong.com/weili/l/2180383432623915013.jpeg',
+    'https://image-cdn.tuchong.com/weili/l/963123910559268959.jpeg',
+    'https://image-cdn.tuchong.com/weili/image/l/1942752512861011982.jpeg'
+]
 
 // 查询课程列表
 // eslint-disable-next-line no-unused-vars
 const getCourseList = async () => {
-    const res = await request.post('/course/queryCourseByTeacherId')
-    courseDTOList.value = res.data.data;
+    try {
+        const teacherId = authStore.userId
+
+        const res = await queryCourseByTeacherId(teacherId)
+
+        const list = res?.data?.data || []
+
+        courseDTOList.value = list.map((item, index) => {
+            const course = item.course || {}
+
+            return {
+                course: {
+                    courseId: course.courseId,
+                    courseName: course.courseName,
+                    courseDesc: course.description,
+                    coverPath: coverList[index % coverList.length],
+                    status: 'ongoing',
+                    viewCount: 0,
+                    rating: course.score || 0
+                },
+                sectionNum: item.sectionNum || 0,
+                studentNum: item.studentNum || 0
+            }
+        })
+
+    } catch (error) {
+        ElMessage.error('课程加载失败')
+        console.error(error)
+    }
 }
 
 const handleSearch = () => {
@@ -295,17 +226,9 @@ const viewAnalytics = (courseId) => {
 }
 
 // 新增课程
-const addCourse = async() => {
-    try {
-        const response = await request.post('/course/addCourse')
-        if (response.data.code != 200) {
-            ElMessage.error("后端处理失败，请稍后再试");
-            return;
-        }
-        editCourse(response.data.data);
-    } catch (error) {
-        ElMessage.error('请求失败', error)
-    }
+// 跳转到创建课程页面
+const addCourse = () => {
+  router.push({ name: 'createCourse' })
 }
 
 // 获取状态类型
@@ -363,6 +286,11 @@ const currentPageData = computed(() => {
     const end = start + pageSize.value;
     return filterList.value.slice(start < 0 ? 0 : start, end);
 });
+
+onMounted(() => {
+    getCourseList()
+});
+
 
 </script>
 

@@ -7,6 +7,8 @@ import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.course.SectionDTO;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -34,4 +36,6 @@ public interface ISectionService extends IService<Section> {
     ArrayList<String> querySectionKnowledges(int sectionId);
 
     Subsection querySubSection(int subsectionId);
+
+    List<Map<String, Object>> querySectionsByCourseId(Integer courseId);
 }

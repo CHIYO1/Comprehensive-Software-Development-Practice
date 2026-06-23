@@ -1,56 +1,60 @@
-// import { defineStore } from 'pinia'
-// import Cookies from 'js-cookie'
-
-// export const useAuthStore = defineStore('auth', {
-//   state: () => ({
-//     userId:null,
-//     userName:'' ,
-//     role: '',            
-//   }),
-//   actions: {
-//     loginSuccess(response) {
-//       Cookies.set('token', response.token, { secure: true, expires: 7 })
-//       this.userId = response.userId
-//       this.userName = response.userName
-//       this.role = response.role
-//     },
-//     //判断角色权限是否相符
-//     isRole(requiredRole) {
-//       // console.log("role:"+this.role+";reuqired："+requiredRole)
-//       return this.role === requiredRole;
-//     },
-//     // 是否登录且有认证token
-//     isAuthenticated() {
-//       // console.log("token:"+Cookies.get('token')+" ;userid:"+this.userId)
-//       return !!Cookies.get('token') && !!this.userId
-//     },
-//     // 退出登录
-//     logout() {
-//       Cookies.remove('token')
-//       this.$reset() 
-//     }
-//   },
-//   persist: true, 
-// })
-
-
 import { defineStore } from 'pinia'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') || '',
-    userInfo: JSON.parse(localStorage.getItem('userInfo')) || {}
+    userInfo: JSON.parse(localStorage.getItem('userInfo') || '{}')
   }),
 
+  getters: {
+    // 用户ID
+    userId: (state) => state.userInfo?.userId || null,
+
+    // 用户名
+    userName: (state) =>
+      state.userInfo?.userName ||
+      state.userInfo?.username ||
+      '',
+
+    // ⭐ 关键：统一角色格式（全部转大写）
+    role: (state) =>
+      (state.userInfo?.role || '').toLowerCase()
+  },
+
   actions: {
+    // 登录成功
     loginSuccess(data) {
       this.token = data.token
-      this.userInfo = data
+
+      // ⭐ 关键：统一角色格式
+      this.userInfo = {
+        ...data,
+        role: (data.role || '').toUpperCase()
+      }
 
       localStorage.setItem('token', data.token)
-      localStorage.setItem('userInfo', JSON.stringify(data))
+      localStorage.setItem('userInfo', JSON.stringify(this.userInfo))
     },
 
+    // ⭐ 权限判断（支持多角色）
+    isRole(requiredRole) {
+      const userRole = (this.role || '').toUpperCase()
+
+      if (Array.isArray(requiredRole)) {
+        return requiredRole
+          .map(r => r.toUpperCase())
+          .includes(userRole)
+      }
+
+      return userRole === (requiredRole || '').toUpperCase()
+    },
+
+    // 是否登录
+    isAuthenticated() {
+      return !!this.token && !!this.userId
+    },
+
+    // 退出登录
     logout() {
       this.token = ''
       this.userInfo = {}

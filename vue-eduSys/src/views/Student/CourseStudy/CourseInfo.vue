@@ -37,8 +37,8 @@
                             <div class="section-info">
                                 <span class="section-number">{{ sectionIndex + 1 }}</span>
                                 <span class="section-name">{{ sectionDTO.section.sectionName }}</span>
-                                <el-progress :percentage="getSectionProgress(sectionDTO)" :show-text="false" style="width: 100px; margin-left: 16px;" />
-                                <span class="progress-text">{{ getSectionProgress(sectionDTO) }}%</span>
+                                <!-- <el-progress :percentage="getSectionProgress(sectionDTO)" :show-text="false" style="width: 100px; margin-left: 16px;" /> -->
+                                <!-- <span class="progress-text">{{ getSectionProgress(sectionDTO) }}%</span> -->
                             </div>
                         </div>
                     </template>
@@ -94,22 +94,15 @@
                                     <el-icon><EditPen /></el-icon>
                                     {{ subsection.state == RECORD_QUESTION_TYPES.UNSUBMIT ? "开始练习" : "查看结果" }}
                                 </el-button>
-                                <el-button 
+                                <!-- <el-button 
                                     type="success" 
                                     size="small"
                                     @click="downloadFileWithFetch(subsection.resourceId, subsection.subsectionType)"
                                 >
                                     <el-icon><Download /></el-icon>
                                     导出
-                                </el-button>
-                                <el-button 
-                                    type="warning" 
-                                    size="small"
-                                    @click="addNote(subsection)"
-                                >
-                                    <el-icon><Memo /></el-icon>
-                                    笔记
-                                </el-button>
+                                </el-button> -->
+            
                             </div>
                         </div>
                     </div>
@@ -122,12 +115,12 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { 
-    Document, VideoPlay, EditPen, Notebook, Memo, 
-    View, Download 
+    Document, VideoPlay, EditPen, Notebook, 
+    View
 } from '@element-plus/icons-vue'
-import request from '@/utils/request.js'
+// import request from '@/utils/request.js'
 import { RESOURCE_TYPES } from '@/constants/resourceTypes'
 import { RECORD_QUESTION_TYPES } from '@/constants/recordQuestionTypes'
 
@@ -171,11 +164,11 @@ const props = defineProps({
 const courseDetail = computed(() => props.courseDetail)
 
 // 获取章节进度
-const getSectionProgress = (section) => {
-    const total = section.subsectionList.length
-    const completed = section.subsectionList.filter(sub => getSubsectionStatus(sub) === 'completed').length
-    return Math.round((completed / total) * 100)
-}
+// const getSectionProgress = (section) => {
+//     const total = section.subsectionList.length
+//     const completed = section.subsectionList.filter(sub => getSubsectionStatus(sub) === 'completed').length
+//     return Math.round((completed / total) * 100)
+// }
 
 // 获取小节状态
 const getSubsectionStatus = (subsection) => {
@@ -209,26 +202,92 @@ const getResourceTypeText = (type) => {
 
 // 小节预览
 const preview = async (subsection) => {
+    // 文档预览
     if (subsection.subsectionType == RESOURCE_TYPES.DOCUMENT) {
-        router.push({
-            name: "filePreview",
-            query: {
-                'fileId': subsection.resourceId
+        const documentUrl = subsection.documentUrl
+        if (!documentUrl) {
+            ElMessage.warning('该小节暂无文档文件')
+            return
+        }
+        
+        // 构建完整的文件路径
+        const fullPath = `${window.location.origin}${documentUrl}`
+        
+        // 弹出选择框，让用户选择预览或下载
+        ElMessageBox.confirm(
+            `文件：${subsection.subsectionName}\n`,
+            '文档操作',
+            {
+                confirmButtonText: '下载文件',
+                cancelButtonText: '在线预览',
+                distinguishCancelAndClose: true
+            }
+        ).then(() => {
+            // 下载文件
+            downloadFile(fullPath, documentUrl)
+        }).catch((action) => {
+            if (action === 'cancel') {
+                // 在新窗口预览
+                window.open(fullPath, '_blank')
             }
         })
-    } else if (subsection.subsectionType == RESOURCE_TYPES.VIDEO) {
-        try {
-            await request.post('/file/queryFile', {
-                "fileId": subsection.resourceId,
-                "fileType": RESOURCE_TYPES.VIDEO,
-            })
-            // 这里需要触发父组件的视频播放
-            ElMessage.info('视频播放功能需要父组件处理')
-        } catch (error) {
-            ElMessage.error('视频加载失败')
+    } 
+    // 视频预览
+    else if (subsection.subsectionType == RESOURCE_TYPES.VIDEO) {
+        if (subsection.videoUrl) {
+            const videoUrl = `${window.location.origin}${subsection.videoUrl}`
+            window.open(videoUrl, '_blank')
+        } else {
+            ElMessage.warning('该小节暂无视频文件')
         }
     }
+    // 练习题
+    else if (subsection.subsectionType == RESOURCE_TYPES.QUESTIONS) {
+        doQuestion(subsection)
+    }
 }
+
+// 下载函数
+// const downloadFileWithFetch = async (subsection) => {
+//     console.log('下载文件:', subsection)
+    
+//     // 获取文件URL（优先文档，其次视频）
+//     let fileUrl = subsection.documentUrl || subsection.videoUrl
+    
+//     if (!fileUrl) {
+//         ElMessage.warning('该小节暂无关联文件')
+//         return
+//     }
+
+//     // 构建完整的文件路径
+//     const fullPath = `${window.location.origin}${fileUrl}`
+    
+//     // 执行下载
+//     downloadFile(fullPath, fileUrl)
+// }
+
+// 通用的文件下载辅助函数
+const downloadFile = (fullPath, fileUrl) => {
+    // 创建下载链接
+    const link = document.createElement('a')
+    link.href = fullPath
+    
+    // 提取文件名
+    const fileName = fileUrl.split('/').pop()
+    link.download = fileName
+    
+    // 添加到页面并触发点击
+    document.body.appendChild(link)
+    link.click()
+    
+    // 清理
+    setTimeout(() => {
+        document.body.removeChild(link)
+    }, 100)
+    
+    ElMessage.success(`开始下载：${fileName}`)
+}
+
 
 const doQuestion = (subsection) => {
     router.push({
@@ -238,15 +297,6 @@ const doQuestion = (subsection) => {
             'setRecordId': subsection.setRecordId
         }
     })
-}
-
-const downloadFileWithFetch = async (resourceId, resourceType) => {
-    console.log('下载文件:', resourceId, resourceType)
-    ElMessage.success('文件下载功能开发中...')
-}
-
-const addNote = () => {
-    ElMessage.info('添加笔记功能需要父组件处理')
 }
 
 // 暴露方法给父组件

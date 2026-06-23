@@ -1,0 +1,132 @@
+2026-06-23T10:27:34.848+08:00  INFO 21856 --- [gpt] [main] com.scnu.gpt.GptApplication              : Starting GptApplication using Java 21.0.5 with PID 21856 (D:\大学相关\专业\软件开发综合实践\spring-eduSys\target\classes started by 1 in D:\大学相关\专业\软件开发综合实践\spring-eduSys)
+2026-06-23T10:27:34.857+08:00  INFO 21856 --- [gpt] [main] com.scnu.gpt.GptApplication              : No active profile set, falling back to 1 default profile: "default"
+2026-06-23T10:27:36.599+08:00  INFO 21856 --- [gpt] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 10020 (http)
+2026-06-23T10:27:36.610+08:00  INFO 21856 --- [gpt] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-23T10:27:36.612+08:00  INFO 21856 --- [gpt] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.16]
+2026-06-23T10:27:36.750+08:00  INFO 21856 --- [gpt] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-23T10:27:36.750+08:00  INFO 21856 --- [gpt] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1838 ms
+2026-06-23T10:27:38.284+08:00  INFO 21856 --- [gpt] [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@fd87c22, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@fee881, org.springframework.security.web.context.SecurityContextHolderFilter@e49437, org.springframework.security.web.header.HeaderWriterFilter@1c43df76, org.springframework.web.filter.CorsFilter@1ff463bb, org.springframework.security.web.authentication.logout.LogoutFilter@59f7c106, com.scnu.gpt.util.JwtAuthFilter@64279ab, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4c50cd7d, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@3ea84e01, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3b9c9b8b, org.springframework.security.web.session.SessionManagementFilter@1a43a88e, org.springframework.security.web.access.ExceptionTranslationFilter@39a8e2fa, org.springframework.security.web.access.intercept.AuthorizationFilter@7bce9ce4]
+2026-06-23T10:27:38.595+08:00  INFO 21856 --- [gpt] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 10020 (http) with context path ''
+2026-06-23T10:27:38.600+08:00  INFO 21856 --- [gpt] [main] com.scnu.gpt.GptApplication              : Started GptApplication in 4.248 seconds (process running for 4.685)
+2026-06-23T10:29:30.224+08:00  INFO 21856 --- [gpt] [http-nio-10020-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-23T10:29:30.224+08:00  INFO 21856 --- [gpt] [http-nio-10020-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-23T10:29:30.228+08:00  INFO 21856 --- [gpt] [http-nio-10020-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+2026-06-23T10:29:30.238+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing OPTIONS /users/login
+2026-06-23T10:29:30.252+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Securing POST /users/login
+2026-06-23T10:29:30.259+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-23T10:29:30.259+08:00  WARN 21856 --- [gpt] [http-nio-10020-exec-3] o.s.w.s.h.HandlerMappingIntrospector     : Cache miss for REQUEST dispatch to '/users/login' (previous null). Performing MatchableHandlerMapping lookup. This is logged once only at WARN level, and every time at TRACE.
+2026-06-23T10:29:30.273+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Secured POST /users/login
+2026-06-23T10:29:30.537+08:00  INFO 21856 --- [gpt] [http-nio-10020-exec-3] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-23T10:29:30.747+08:00  INFO 21856 --- [gpt] [http-nio-10020-exec-3] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@906fcb4
+2026-06-23T10:29:30.748+08:00  INFO 21856 --- [gpt] [http-nio-10020-exec-3] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-23T10:29:30.877+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.s.a.dao.DaoAuthenticationProvider    : Authenticated user
+2026-06-23T10:29:31.093+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-2] o.s.security.web.FilterChainProxy        : Securing OPTIONS /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T10:29:31.097+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Securing POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T10:29:31.142+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Secured POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T10:30:13.119+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Securing OPTIONS /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T10:30:13.123+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T10:30:13.130+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Secured POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T10:30:14.641+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T10:30:14.642+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-8] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T10:30:14.645+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T10:30:14.652+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T10:30:14.688+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T10:30:14.695+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T10:30:14.695+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/querySectionsByCourseId?courseId=1
+2026-06-23T10:30:14.700+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Securing GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T10:30:14.707+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Secured GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T10:37:38.905+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Securing OPTIONS /users/login
+2026-06-23T10:37:38.908+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing POST /users/login
+2026-06-23T10:37:38.910+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-23T10:37:38.910+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Secured POST /users/login
+2026-06-23T10:37:38.985+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.s.a.dao.DaoAuthenticationProvider    : Authenticated user
+2026-06-23T10:37:39.036+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing OPTIONS /students/my-courses?user_id=2024010
+2026-06-23T10:37:39.039+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-8] o.s.security.web.FilterChainProxy        : Securing GET /students/my-courses?user_id=2024010
+2026-06-23T10:37:39.045+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-8] o.s.security.web.FilterChainProxy        : Secured GET /students/my-courses?user_id=2024010
+2026-06-23T10:38:07.220+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Securing OPTIONS /course/queryAllCourse
+2026-06-23T10:38:07.222+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing POST /course/queryAllCourse
+2026-06-23T10:38:07.232+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Secured POST /course/queryAllCourse
+2026-06-23T10:38:23.240+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Securing OPTIONS /students/my-courses?user_id=2024010
+2026-06-23T10:38:23.247+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Securing GET /students/my-courses?user_id=2024010
+2026-06-23T10:38:23.253+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Secured GET /students/my-courses?user_id=2024010
+2026-06-23T10:38:25.348+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-2] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T10:38:25.351+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T10:38:25.357+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T10:39:32.328+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing OPTIONS /students/my-courses?user_id=2024010
+2026-06-23T10:39:32.332+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing GET /students/my-courses?user_id=2024010
+2026-06-23T10:39:32.338+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Secured GET /students/my-courses?user_id=2024010
+2026-06-23T10:59:52.896+08:00  WARN 21856 --- [gpt] [HikariPool-1 housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=11m21s760ms922µs900ns).
+2026-06-23T11:00:49.199+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Securing OPTIONS /users/login
+2026-06-23T11:00:49.204+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing POST /users/login
+2026-06-23T11:00:49.205+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-23T11:00:49.205+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Secured POST /users/login
+2026-06-23T11:00:49.274+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.s.a.dao.DaoAuthenticationProvider    : Authenticated user
+2026-06-23T11:00:49.353+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Securing OPTIONS /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:00:49.355+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Securing POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:00:49.361+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Secured POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:01:05.978+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Securing OPTIONS /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:01:05.982+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Securing POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:01:05.986+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Secured POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:01:07.650+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T11:01:07.651+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T11:01:07.653+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-8] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T11:01:07.656+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-8] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T11:01:07.680+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T11:01:07.684+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T11:01:07.690+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:01:07.692+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Securing GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:01:07.696+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Secured GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:04:42.882+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T11:04:42.886+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T11:04:42.891+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T11:04:42.908+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:04:42.913+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:04:42.919+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Secured GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:04:47.981+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-8] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/addSection
+2026-06-23T11:04:47.984+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing POST /section/addSection
+2026-06-23T11:04:47.988+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Secured POST /section/addSection
+2026-06-23T11:04:48.016+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:04:48.019+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Securing GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:04:48.021+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Secured GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:05:03.430+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/updateSection
+2026-06-23T11:05:03.433+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-2] o.s.security.web.FilterChainProxy        : Securing POST /section/updateSection
+2026-06-23T11:05:03.435+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-2] o.s.security.web.FilterChainProxy        : Secured POST /section/updateSection
+2026-06-23T11:05:13.753+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/addSubsection
+2026-06-23T11:05:13.757+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Securing POST /section/addSubsection
+2026-06-23T11:05:13.762+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Secured POST /section/addSubsection
+2026-06-23T11:05:13.778+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:05:13.781+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:05:13.789+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Secured GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:07:14.502+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing OPTIONS /users/login
+2026-06-23T11:07:14.504+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Securing POST /users/login
+2026-06-23T11:07:14.504+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-23T11:07:14.507+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Secured POST /users/login
+2026-06-23T11:07:14.578+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.s.a.dao.DaoAuthenticationProvider    : Authenticated user
+2026-06-23T11:07:14.624+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Securing OPTIONS /students/my-courses?user_id=2024010
+2026-06-23T11:07:14.627+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Securing GET /students/my-courses?user_id=2024010
+2026-06-23T11:07:14.632+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Secured GET /students/my-courses?user_id=2024010
+2026-06-23T11:07:18.718+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-2] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T11:07:18.721+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T11:07:18.725+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T11:10:28.595+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing OPTIONS /students/my-courses?user_id=2024010
+2026-06-23T11:10:28.598+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing GET /students/my-courses?user_id=2024010
+2026-06-23T11:10:28.603+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Secured GET /students/my-courses?user_id=2024010
+2026-06-23T11:10:43.101+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-8] o.s.security.web.FilterChainProxy        : Securing OPTIONS /users/login
+2026-06-23T11:10:43.104+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Securing POST /users/login
+2026-06-23T11:10:43.105+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
+2026-06-23T11:10:43.105+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.security.web.FilterChainProxy        : Secured POST /users/login
+2026-06-23T11:10:43.185+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-1] o.s.s.a.dao.DaoAuthenticationProvider    : Authenticated user
+2026-06-23T11:10:43.219+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-5] o.s.security.web.FilterChainProxy        : Securing OPTIONS /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:10:43.221+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Securing POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:10:43.226+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-10] o.s.security.web.FilterChainProxy        : Secured POST /course/queryCourseByTeacherId?teacherId=2024001
+2026-06-23T11:10:45.508+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-3] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T11:10:45.508+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-2] o.s.security.web.FilterChainProxy        : Securing OPTIONS /courses/detail?course_id=1
+2026-06-23T11:10:45.510+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T11:10:45.516+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-7] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T11:10:45.526+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Securing GET /courses/detail?course_id=1
+2026-06-23T11:10:45.531+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-9] o.s.security.web.FilterChainProxy        : Secured GET /courses/detail?course_id=1
+2026-06-23T11:10:45.533+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-6] o.s.security.web.FilterChainProxy        : Securing OPTIONS /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:10:45.535+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Securing GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:10:45.537+08:00 DEBUG 21856 --- [gpt] [http-nio-10020-exec-4] o.s.security.web.FilterChainProxy        : Secured GET /section/querySectionsByCourseId?courseId=1
+2026-06-23T11:33:37.017+08:00  INFO 21856 --- [gpt] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-23T11:33:37.022+08:00  INFO 21856 --- [gpt] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

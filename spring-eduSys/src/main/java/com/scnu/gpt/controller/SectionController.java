@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -40,6 +42,21 @@ public class SectionController {
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
         }
     }
+
+    @Operation(
+        summary = "根据课程ID查询章节列表（包含小节）",
+        description = "查询指定课程下的所有章节及每个章节下的小节，按顺序排列")
+    @GetMapping("/querySectionsByCourseId")
+    public ApiResponse<List<Map<String, Object>>> querySectionsByCourseId(@RequestParam Integer courseId) {
+        try {
+            List<Map<String, Object>> sectionList = sectionService.querySectionsByCourseId(courseId);
+            return new ApiResponse<>("200", "成功", sectionList);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ApiResponse<>("500", "未知错误" + e.getMessage(), null);
+        }
+    }
+
 
     @Operation(
             summary = "更新章节（不包括小节）",

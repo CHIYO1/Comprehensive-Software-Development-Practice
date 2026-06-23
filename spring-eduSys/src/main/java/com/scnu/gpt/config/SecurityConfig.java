@@ -72,7 +72,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/gpt/**").permitAll() // 放行所有gpt访问路径
                         .requestMatchers("/LrnAst/**").permitAll()
-                        .anyRequest().authenticated()       //其它接口都要验证
+                        .anyRequest().permitAll()   //放行所有接口
+                        // .anyRequest().authenticated()       //其它接口都要验证
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);    //添加过滤器
 

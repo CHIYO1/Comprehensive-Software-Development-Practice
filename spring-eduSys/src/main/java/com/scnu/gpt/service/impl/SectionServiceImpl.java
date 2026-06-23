@@ -9,12 +9,15 @@ import com.scnu.gpt.pojo.ApiResponse;
 import com.scnu.gpt.pojo.course.SectionDTO;
 import com.scnu.gpt.pojo.knowledge.SectionKnowledgeDTO;
 import com.scnu.gpt.service.ISectionService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -91,5 +94,33 @@ public class SectionServiceImpl extends ServiceImpl<SectionMapper, Section> impl
     @Override
     public Subsection querySubSection(int subsectionId) {
         return subsectionMapper.selectById(subsectionId);
+    }
+
+    @Override
+    public List<Map<String, Object>> querySectionsByCourseId(Integer courseId) {
+        // 1. 根据课程ID查询所有章节，按章节顺序排序
+        QueryWrapper<Section> sectionWrapper = new QueryWrapper<>();
+        sectionWrapper.eq("course_id", courseId)
+                    .orderByAsc("chapter_order");
+        List<Section> sections = sectionMapper.selectList(sectionWrapper);
+        
+        // 2. 对每个章节，查询其下的小节列表
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        for (Section section : sections) {
+            // 查询该章节下的所有小节，按内容顺序排序
+            QueryWrapper<Subsection> subsectionWrapper = new QueryWrapper<>();
+            subsectionWrapper.eq("chapter_id", section.getChapterId())
+                        .orderByAsc("content_order");
+            List<Subsection> subsections = subsectionMapper.selectList(subsectionWrapper);
+            
+            // 构建返回的Map
+            Map<String, Object> sectionMap = new HashMap<>();
+            sectionMap.put("section", section);
+            sectionMap.put("subsections", subsections);
+            
+            resultList.add(sectionMap);
+        }
+        
+        return resultList;
     }
 }

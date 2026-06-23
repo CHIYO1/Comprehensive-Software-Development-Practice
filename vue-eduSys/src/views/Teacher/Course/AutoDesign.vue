@@ -1,24 +1,5 @@
 <template>
     <div class="auto-design-content">
-        <!-- 页面头部 -->
-        <div class="content-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <h2 class="page-title">智能备课助手</h2>
-                </div>
-                <div class="header-right">
-                    <el-button type="primary" @click="saveDesign">
-                        <el-icon><Check /></el-icon>
-                        保存方案
-                    </el-button>
-                    <el-button type="success" @click="exportDesign">
-                        <el-icon><Download /></el-icon>
-                        导出方案
-                    </el-button>
-                </div>
-            </div>
-        </div>
-
         <!-- 主要内容区域 -->
         <el-row :gutter="24" class="main-content">
             <!-- 左侧配置区域 -->
@@ -31,7 +12,7 @@
                     </template>
                     
                     <el-form :model="designForm" label-width="100px" class="design-form">
-                        <el-form-item label="课程大纲:">
+                        <!-- <el-form-item label="课程大纲:">
                             <el-upload 
                                 v-model:file-list="designForm.files" 
                                 :limit="3" 
@@ -46,7 +27,7 @@
                                     <div class="upload-hint">支持PDF、DOC、DOCX、TXT格式，最多3个文件</div>
                                 </div>
                             </el-upload>
-                        </el-form-item>
+                        </el-form-item> -->
 
                         <el-form-item label="教学需求:">
                             <el-input 
@@ -59,14 +40,10 @@
 
                         <el-form-item label="学科类型:">
                             <el-select v-model="designForm.subject" placeholder="选择学科类型" style="width: 100%;">
-                                <el-option label="计算机科学" value="cs" />
-                                <el-option label="数学" value="math" />
-                                <el-option label="物理" value="physics" />
-                                <el-option label="化学" value="chemistry" />
-                                <el-option label="生物" value="biology" />
-                                <el-option label="文学" value="literature" />
-                                <el-option label="历史" value="history" />
-                                <el-option label="艺术" value="art" />
+                                <el-option label="编程开发" value="编程开发" />
+                                <el-option label="软件工程" value="软件工程" />
+                                <el-option label="理论教学" value="理论教学" />
+                                <el-option label="综合实训" value="课程实训" />
                             </el-select>
                         </el-form-item>
 
@@ -92,26 +69,6 @@
                     </el-form>
                 </el-card>
 
-                <!-- 历史方案 -->
-                <el-card class="history-card" style="margin-top: 24px;">
-                    <template #header>
-                        <div class="card-header">
-                            <span>历史方案</span>
-                        </div>
-                    </template>
-                    
-                    <div class="history-list">
-                        <div v-for="item in historyDesigns" :key="item.id" class="history-item" @click="loadHistoryDesign(item)">
-                            <div class="history-info">
-                                <div class="history-title">{{ item.title }}</div>
-                                <div class="history-date">{{ item.createTime }}</div>
-                            </div>
-                            <el-button size="small" type="text" @click.stop="deleteHistoryDesign(item)">
-                                <el-icon><Delete /></el-icon>
-                            </el-button>
-                        </div>
-                    </div>
-                </el-card>
             </el-col>
 
             <!-- 右侧结果区域 -->
@@ -125,100 +82,33 @@
                                     <el-icon><Delete /></el-icon>
                                     清空
                                 </el-button>
-                                <el-button size="small" type="primary" @click="applyToCourse">
+
+                                <el-button size="small" type="primary" @click="exportDesign">
+                                    <el-icon><Download /></el-icon>
+                                    导出文档
+                                </el-button>
+
+                                <!-- <el-button size="small" type="primary" @click="applyToCourse">
                                     <el-icon><Check /></el-icon>
                                     应用到课程
-                                </el-button>
+                                </el-button> -->
                             </div>
                         </div>
                     </template>
 
-                    <div v-if="!designResult" class="empty-result">
+                    <div v-if="!designResult && !generating" class="empty-result">
                         <el-icon class="empty-icon"><Document /></el-icon>
                         <div class="empty-text">请配置备课参数并点击生成按钮</div>
                         <div class="empty-hint">AI将根据您的需求生成个性化的备课方案</div>
                     </div>
 
-                    <div v-else class="design-result">
-                        <!-- 课程大纲 -->
-                        <div class="result-section">
-                            <h3 class="section-title">
-                                <el-icon><Document /></el-icon>
-                                课程大纲
-                            </h3>
-                            <div class="outline-content">
-                                <div v-for="(chapter, index) in designResult.outline" :key="index" class="chapter-item">
-                                    <div class="chapter-header">
-                                        <span class="chapter-number">{{ index + 1 }}</span>
-                                        <span class="chapter-title">{{ chapter.title }}</span>
-                                        <span class="chapter-hours">{{ chapter.hours }}课时</span>
-                                    </div>
-                                    <div class="chapter-content">
-                                        <div v-for="(section, sIndex) in chapter.sections" :key="sIndex" class="section-item">
-                                            <span class="section-number">{{ index + 1 }}.{{ sIndex + 1 }}</span>
-                                            <span class="section-title">{{ section.title }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div v-if="generating" class="loading-result">
+                        <el-icon class="loading-icon is-loading"><Loading /></el-icon>
+                        <div class="loading-text">AI正在生成课程计划，请稍候...</div>
+                    </div>
 
-                        <!-- 教学建议 -->
-                        <div class="result-section">
-                            <h3 class="section-title">
-                                <el-icon><Lightbulb /></el-icon>
-                                教学建议
-                            </h3>
-                            <div class="suggestions-content">
-                                <div v-for="(suggestion, index) in designResult.suggestions" :key="index" class="suggestion-item">
-                                    <div class="suggestion-header">
-                                        <el-icon class="suggestion-icon"><InfoFilled /></el-icon>
-                                        <span class="suggestion-title">{{ suggestion.title }}</span>
-                                    </div>
-                                    <div class="suggestion-content">{{ suggestion.content }}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 教学资源 -->
-                        <div class="result-section">
-                            <h3 class="section-title">
-                                <el-icon><Folder /></el-icon>
-                                推荐资源
-                            </h3>
-                            <div class="resources-content">
-                                <el-row :gutter="16">
-                                    <el-col :span="8" v-for="resource in designResult.resources" :key="resource.id">
-                                        <div class="resource-item">
-                                            <div class="resource-icon">
-                                                <el-icon><Document /></el-icon>
-                                            </div>
-                                            <div class="resource-info">
-                                                <div class="resource-title">{{ resource.title }}</div>
-                                                <div class="resource-type">{{ resource.type }}</div>
-                                            </div>
-                                        </div>
-                                    </el-col>
-                                </el-row>
-                            </div>
-                        </div>
-
-                        <!-- 评估方案 -->
-                        <div class="result-section">
-                            <h3 class="section-title">
-                                <el-icon><Star /></el-icon>
-                                评估方案
-                            </h3>
-                            <div class="assessment-content">
-                                <div v-for="(assessment, index) in designResult.assessments" :key="index" class="assessment-item">
-                                    <div class="assessment-header">
-                                        <span class="assessment-title">{{ assessment.title }}</span>
-                                        <span class="assessment-weight">{{ assessment.weight }}%</span>
-                                    </div>
-                                    <div class="assessment-desc">{{ assessment.description }}</div>
-                                </div>
-                            </div>
-                        </div>
+                    <div v-else class="design-result" v-html="renderedContent">
+                        
                     </div>
                 </el-card>
             </el-col>
@@ -227,36 +117,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { 
-    Check, Download, Upload, MagicStick, Delete, Document, 
-    Lightbulb, InfoFilled, Folder, Star 
+    MagicStick, Delete, Document, 
+    Download,Loading 
 } from '@element-plus/icons-vue'
 
+import { generateCoursePlan } from '@/api/ai'
+import { marked } from 'marked'
 
-
-
+// 渲染Markdown内容
+const renderedContent = computed(() => {
+    if (!designResult.value) return ''
+    return marked(designResult.value)
+})
 
 const generating = ref(false)
 
 // 备课表单
 const designForm = ref({
     files: [],
+    courseName: '',      // 添加课程名称
+    description: '',     // 添加课程描述
     demand: '',
     subject: '',
     difficulty: 3,
     totalHours: 32,
-    objectives: []
+    objectives: [],
+    outline: ''          // 添加大纲字段
 })
 
-// 历史方案
-const historyDesigns = ref([
-    { id: 1, title: 'Vue.js基础教学方案', createTime: '2024-01-15 10:30' },
-    { id: 2, title: 'React进阶课程设计', createTime: '2024-01-14 15:20' },
-    { id: 3, title: '前端工程化实践', createTime: '2024-01-13 09:15' }
-])
 
 // 生成结果
 const designResult = ref(null)
@@ -264,100 +156,43 @@ const designResult = ref(null)
 
 
 const generateDesign = async () => {
-    if (!designForm.value.demand || !designForm.value.subject) {
-        ElMessage.warning('请填写教学需求和选择学科类型')
+    if (!designForm.value.subject) {
+        ElMessage.warning('请选择学科类型')
         return
     }
 
     generating.value = true
+    designResult.value = null
+
     try {
-        // 这里应该调用实际的API
-        // const response = await request.post('/api/auto-design/generate', designForm.value)
+        // 用已有字段构造课程名称
+        const courseName = `${designForm.value.subject}课程`
         
-        // 模拟生成过程
-        await new Promise(resolve => setTimeout(resolve, 3000))
+        const result = await generateCoursePlan({
+            courseName: courseName,
+            description: designForm.value.demand || '',
+            subject: designForm.value.subject,
+            difficulty: designForm.value.difficulty,
+            totalHours: designForm.value.totalHours,
+            objectives: designForm.value.objectives,
+            demand: designForm.value.demand,
+            outline: ''
+        })
+
         
-        // 模拟结果
-        designResult.value = {
-            outline: [
-                {
-                    title: '第一章：课程介绍与基础概念',
-                    hours: 4,
-                    sections: [
-                        { title: '课程概述' },
-                        { title: '开发环境搭建' },
-                        { title: '基础语法介绍' }
-                    ]
-                },
-                {
-                    title: '第二章：核心概念深入',
-                    hours: 8,
-                    sections: [
-                        { title: '组件化开发' },
-                        { title: '数据绑定' },
-                        { title: '生命周期' },
-                        { title: '事件处理' }
-                    ]
-                },
-                {
-                    title: '第三章：实战项目',
-                    hours: 12,
-                    sections: [
-                        { title: '项目需求分析' },
-                        { title: '架构设计' },
-                        { title: '功能实现' },
-                        { title: '测试与优化' }
-                    ]
-                }
-            ],
-            suggestions: [
-                {
-                    title: '教学方法建议',
-                    content: '建议采用项目驱动教学法，通过实际项目开发来巩固理论知识。'
-                },
-                {
-                    title: '重点难点提示',
-                    content: '组件通信和状态管理是学生容易困惑的地方，需要重点讲解。'
-                },
-                {
-                    title: '时间分配建议',
-                    content: '理论讲解占30%，实践操作占50%，项目实战占20%。'
-                }
-            ],
-            resources: [
-                { id: 1, title: 'Vue.js官方文档', type: '文档' },
-                { id: 2, title: 'Vue CLI使用指南', type: '教程' },
-                { id: 3, title: 'Vue Router实战', type: '视频' }
-            ],
-            assessments: [
-                { title: '课堂参与度', weight: 20, description: '根据学生课堂提问和讨论参与情况评分' },
-                { title: '作业完成质量', weight: 30, description: '评估学生课后作业的完成情况和质量' },
-                { title: '项目实战', weight: 50, description: '通过实际项目开发来评估学生的综合能力' }
-            ]
+
+        if (result.success) {
+            designResult.value = result.content
+            ElMessage.success('课程计划生成成功')
+        } else {
+            ElMessage.error(`生成失败: ${result.error}`)
         }
-        
-        ElMessage.success('备课方案生成成功')
     } catch (error) {
-        ElMessage.error('生成备课方案失败')
+        ElMessage.error('生成课程计划失败')
+        console.error(error)
     } finally {
         generating.value = false
     }
-}
-
-const saveDesign = () => {
-    if (!designResult.value) {
-        ElMessage.warning('请先生成备课方案')
-        return
-    }
-    ElMessage.success('备课方案保存成功')
-}
-
-const exportDesign = () => {
-    if (!designResult.value) {
-        ElMessage.warning('请先生成备课方案')
-        return
-    }
-    ElMessage.success('备课方案导出成功')
 }
 
 const clearResult = () => {
@@ -365,42 +200,48 @@ const clearResult = () => {
     ElMessage.info('已清空备课方案')
 }
 
-const applyToCourse = () => {
+// 导出文档
+const exportDesign = () => {
     if (!designResult.value) {
         ElMessage.warning('请先生成备课方案')
         return
     }
-    ElMessage.success('备课方案已应用到课程')
+
+    const content = `
+# ${designForm.value.courseName} 课程计划
+
+生成时间：${new Date().toLocaleString()}
+学科类型：${designForm.value.subject}
+难度等级：${designForm.value.difficulty}/5
+总课时：${designForm.value.totalHours} 课时
+
+---
+
+${designResult.value}
+`
+
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${designForm.value.courseName}_课程计划.md`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    
+    ElMessage.success('课程计划导出成功')
 }
 
-const loadHistoryDesign = (design) => {
-    ElMessage.info(`加载历史方案：${design.title}`)
-    // 这里可以加载历史方案到表单中
-}
 
-const deleteHistoryDesign = async (design) => {
-    try {
-        await ElMessageBox.confirm(
-            `确定要删除方案"${design.title}"吗？`,
-            '确认删除',
-            {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-            }
-        )
-        
-        const index = historyDesigns.value.findIndex(item => item.id === design.id)
-        if (index > -1) {
-            historyDesigns.value.splice(index, 1)
-            ElMessage.success('删除成功')
-        }
-    } catch (error) {
-        if (error !== 'cancel') {
-            ElMessage.error('删除失败')
-        }
-    }
-}
+
+// const applyToCourse = () => {
+//     if (!designResult.value) {
+//         ElMessage.warning('请先生成备课方案')
+//         return
+//     }
+//     ElMessage.success('备课方案已应用到课程')
+// }
 
 onMounted(() => {
     // 初始化页面
@@ -799,4 +640,124 @@ onMounted(() => {
         margin-bottom: 12px;
     }
 }
+
+
+.loading-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    padding: 40px;
+}
+
+.loading-icon {
+    font-size: 48px;
+    color: #409eff;
+    margin-bottom: 16px;
+}
+
+.loading-icon.is-loading {
+    animation: rotating 2s linear infinite;
+}
+
+@keyframes rotating {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 16px;
+    color: #606266;
+}
+
+.design-result {
+    padding: 20px 0;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.design-result :deep(h1) {
+    font-size: 24px;
+    color: #303133;
+    margin: 20px 0 16px;
+    border-bottom: 2px solid #409eff;
+    padding-bottom: 8px;
+}
+
+.design-result :deep(h2) {
+    font-size: 20px;
+    color: #303133;
+    margin: 16px 0 12px;
+}
+
+.design-result :deep(h3) {
+    font-size: 16px;
+    color: #303133;
+    margin: 12px 0 8px;
+}
+
+.design-result :deep(p) {
+    line-height: 1.8;
+    color: #606266;
+    margin: 8px 0;
+}
+
+.design-result :deep(ul), 
+.design-result :deep(ol) {
+    padding-left: 24px;
+    margin: 8px 0;
+}
+
+.design-result :deep(li) {
+    line-height: 1.8;
+    color: #606266;
+}
+
+.design-result :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+}
+
+.design-result :deep(th),
+.design-result :deep(td) {
+    border: 1px solid #dcdfe6;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.design-result :deep(th) {
+    background: #f5f7fa;
+    font-weight: 600;
+}
+
+.design-result :deep(blockquote) {
+    border-left: 4px solid #409eff;
+    padding: 8px 16px;
+    margin: 8px 0;
+    background: #f4f6f9;
+    color: #606266;
+}
+
+.design-result :deep(code) {
+    background: #f4f6f9;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+.design-result :deep(pre) {
+    background: #f4f6f9;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+
+.design-result :deep(pre code) {
+    background: transparent;
+    padding: 0;
+}
+
 </style> 

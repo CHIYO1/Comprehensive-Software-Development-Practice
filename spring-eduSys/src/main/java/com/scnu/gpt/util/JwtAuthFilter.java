@@ -21,6 +21,44 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    // @Override
+    // protected void doFilterInternal(
+    //         HttpServletRequest request,
+    //         HttpServletResponse response,
+    //         FilterChain filterChain
+    // ) throws ServletException, IOException {
+
+    //     final String authHeader = request.getHeader("Authorization"); // 获取认证头
+    //     String username = null;
+    //     String jwtToken = null;
+
+    //     // 验证Authorization头格式 (Bearer token)
+    //     if (authHeader != null && authHeader.startsWith("Bearer ")) {
+    //         jwtToken = authHeader.substring(7); // 提取纯Token (去掉"Bearer "前缀)
+    //         username = jwtUtils.extractUsername(jwtToken); // 从Token中解码用户名
+    //     }
+
+    //     // 当用户名存在且当前安全上下文未认证时
+    //     if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+    //         UserDetails userDetails = this.userDetailsService.loadUserByUsername(username); // 加载用户详情
+
+    //         // 验证Token有效性（签名+过期时间）
+    //         if (jwtUtils.validateToken(jwtToken, userDetails)) {
+    //             // 创建已认证的令牌对象
+    //             UsernamePasswordAuthenticationToken authentication =
+    //                     new UsernamePasswordAuthenticationToken(
+    //                             userDetails,  // 用户主体
+    //                             null,        // 凭证(密码不需要)
+    //                             userDetails.getAuthorities() // 用户权限集合
+    //                     );
+
+    //             // 将认证信息设置到安全上下文
+    //             SecurityContextHolder.getContext().setAuthentication(authentication);
+    //         }
+    //     }
+    //     filterChain.doFilter(request, response); // 继续过滤器链执行
+    // }
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -28,34 +66,41 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization"); // 获取认证头
-        String username = null;
-        String jwtToken = null;
+        try {
+            final String authHeader = request.getHeader("Authorization");
 
-        // 验证Authorization头格式 (Bearer token)
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwtToken = authHeader.substring(7); // 提取纯Token (去掉"Bearer "前缀)
-            username = jwtUtils.extractUsername(jwtToken); // 从Token中解码用户名
-        }
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-        // 当用户名存在且当前安全上下文未认证时
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username); // 加载用户详情
+                String jwtToken = authHeader.substring(7);
+                String username = jwtUtils.extractUsername(jwtToken);
 
-            // 验证Token有效性（签名+过期时间）
-            if (jwtUtils.validateToken(jwtToken, userDetails)) {
-                // 创建已认证的令牌对象
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,  // 用户主体
-                                null,        // 凭证(密码不需要)
-                                userDetails.getAuthorities() // 用户权限集合
-                        );
+                if (username != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // 将认证信息设置到安全上下文
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    UserDetails userDetails =
+                            userDetailsService.loadUserByUsername(username);
+
+                    if (jwtUtils.validateToken(jwtToken, userDetails)) {
+
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
+
+                        SecurityContextHolder.getContext()
+                                .setAuthentication(authentication);
+                    }
+                }
             }
+
+        } catch (Exception e) {
+            // ⭐ 核心修改：任何JWT异常都不要影响请求
+            System.out.println("JWT解析失败，已忽略: " + e.getMessage());
         }
-        filterChain.doFilter(request, response); // 继续过滤器链执行
+
+        // ⭐ 无论如何都放行
+        filterChain.doFilter(request, response);
     }
 }

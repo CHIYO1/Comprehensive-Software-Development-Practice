@@ -48,11 +48,12 @@ public class CourseController {
     @Autowired
     private IUserService userService;
 
+
     @Operation(
             summary = "查询单个课程详情",
             description = "如题")
     @PostMapping("/queryCourseDetail")
-    public ApiResponse<CourseDetailDTO> queryCourse(@RequestBody String courseId) {
+    public ApiResponse<CourseDetailDTO> queryCourse(@RequestParam String courseId) {
         try {
             return new ApiResponse<>("200","成功",courseService.queryCourseDetail(Integer.parseInt(courseId)));
         }catch (Exception e){
@@ -61,23 +62,23 @@ public class CourseController {
         }
     }
 
+
     @Operation(
             summary = "新增教师课程(归属当前教师Id)。返回课程新增后的自增Id,下同。",
             description = "如题")
     @PostMapping("/addCourse")
-    public ApiResponse<Integer> addCourse() {
+    public ApiResponse<Integer> addCourse(@RequestBody Course course) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String account = authentication.getName();
-            User user = userService.getByAccount(account);
-            Course course = new Course();
-            course.setTeacherId(user.getUserId());
-            return new ApiResponse<>("200","成功",courseService.addCourse(course));
-        }catch (Exception e){
+            // 初始化选课人数为 0
+            course.setStudentCount(0);
+            return new ApiResponse<>("200", "成功", courseService.addCourse(course));
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
+            return new ApiResponse<>("500", "未知错误" + e.getMessage(), null);
         }
     }
+
+
     @Operation(
             summary = "删除课程",
             description = "如题")
@@ -92,49 +93,44 @@ public class CourseController {
         }
     }
 
+
     @Operation(
             summary = "更新课程(仅更新单个课程实体，不包括其下的章节。下同)",
-            description = "如题",
-            parameters = {
-                    @Parameter(
-                            name = "coverFile",
-                            description = "课程封面文件",
-                            schema = @Schema(type = "MultipartFile")
-                    )
-            })
+            description = "如题")
     @PostMapping("/updateCourse")
-    public ApiResponse<Void> updateCourse(@ModelAttribute Course course, // 绑定表单数据到对象
-                                          @RequestParam(value = "coverFile",required = false) MultipartFile coverFile) {
+    public ApiResponse<Void> updateCourse(@RequestBody Course course) {
         try {
-            //封面文件上传
-            if(coverFile!=null && !coverFile.isEmpty()){
-                ArrayList<MultipartFile> fileArrayList = new ArrayList<>();
-                fileArrayList.add(coverFile);
-                String coverPath = fileService.uploadFile(fileArrayList).getFirst();
-                course.setCoverImage(coverPath);
+            // courseId 不能为空
+            if (course.getCourseId() == null) {
+                return new ApiResponse<>("400", "缺少课程ID", null);
             }
             return courseService.updateCourse(course);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
+            return new ApiResponse<>("500", "未知错误" + e.getMessage(), null);
         }
     }
+
 
     @Operation(
             summary = "查询当前登录教师名下的所有课程信息",
             description = "如题")
     @PostMapping("/queryCourseByTeacherId")
-    public ApiResponse<ArrayList<CourseStatisticsDTO>> queryCourseByTeacherId() {
+    public ApiResponse<ArrayList<CourseStatisticsDTO>> queryCourseByTeacherId(
+            @RequestParam Integer teacherId
+    ) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String account = authentication.getName();
-            int userId = userService.getByAccount(account).getUserId();
-            return new ApiResponse<>("200","成功",courseService.queryCourseByTeacherId(userId));
-        }catch (Exception e){
+            return new ApiResponse<>(
+                    "200",
+                    "成功",
+                    courseService.queryCourseByTeacherId(teacherId)
+            );
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
+            return new ApiResponse<>("500", "未知错误" + e.getMessage(), null);
         }
     }
+
 
     @Operation(
             summary = "通过章节id获取该章节及其所属课程的上下文信息",
@@ -148,6 +144,7 @@ public class CourseController {
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
         }
     }
+
 
     @Operation(
             summary = "查询所有课程基础信息（不包括其下的章节列表）",
@@ -182,5 +179,6 @@ public class CourseController {
             return new ApiResponse<>("500","未知错误"+e.getMessage(),null);
         }
     }
+
 
 }

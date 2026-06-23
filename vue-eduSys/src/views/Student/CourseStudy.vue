@@ -14,56 +14,6 @@
             </div>
         </div>
 
-        <!-- 学习进度卡片 -->
-        <div class="progress-section">
-            <el-row :gutter="24">
-                <el-col :span="6">
-                    <el-card class="progress-card" shadow="hover">
-                        <div class="progress-content">
-                            <el-icon class="progress-icon"><Clock /></el-icon>
-                            <div class="progress-info">
-                                <div class="progress-number">{{ studyProgress.totalTime }}</div>
-                                <div class="progress-label">学习时长</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-                <el-col :span="6">
-                    <el-card class="progress-card" shadow="hover">
-                        <div class="progress-content">
-                            <el-icon class="progress-icon"><Document /></el-icon>
-                            <div class="progress-info">
-                                <div class="progress-number">{{ studyProgress.completedSections }}</div>
-                                <div class="progress-label">已完成章节</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-                <el-col :span="6">
-                    <el-card class="progress-card" shadow="hover">
-                        <div class="progress-content">
-                            <el-icon class="progress-icon"><EditPen /></el-icon>
-                            <div class="progress-info">
-                                <div class="progress-number">{{ studyProgress.completedExercises }}</div>
-                                <div class="progress-label">已完成练习</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-                <el-col :span="6">
-                    <el-card class="progress-card" shadow="hover">
-                        <div class="progress-content">
-                            <el-icon class="progress-icon"><Star /></el-icon>
-                            <div class="progress-info">
-                                <div class="progress-number">{{ studyProgress.avgScore }}</div>
-                                <div class="progress-label">平均得分</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-            </el-row>
-        </div>
-
         <!-- 主要内容区域 -->
         <el-container class="main-container">
             <!-- 左侧学习工具 -->
@@ -112,19 +62,6 @@
                             <el-icon><Service /></el-icon>
                             学习助手
                         </el-button>
-                        <el-button 
-                            type="default"
-                            @click="goToPractice" 
-                            class="tool-btn"
-                            :class="{ 'active': currentActiveTab === 'practice' }"
-                        >
-                            <el-icon><EditPen /></el-icon>
-                            实时练习
-                        </el-button>
-                        <el-button type="default" @click="exportNotes" class="tool-btn">
-                            <el-icon><Download /></el-icon>
-                            导出笔记
-                        </el-button>
                     </div>
                 </el-card>
             </el-aside>
@@ -148,13 +85,15 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { 
-    Document, EditPen, Notebook, ArrowLeft, Memo, 
-    ChatDotRound, Clock, Download, Star, Service 
+    Notebook, ArrowLeft, Memo, 
+    ChatDotRound, Service 
 } from '@element-plus/icons-vue'
-import request from '@/utils/request.js'
-import { RESOURCE_TYPES } from '@/constants/resourceTypes'
+// import request from '@/utils/request.js'
+// import { RESOURCE_TYPES } from '@/constants/resourceTypes'
 import VideoPlayDialog from '@/components/file/VideoPlay.vue';
-import { RECORD_QUESTION_TYPES } from '@/constants/recordQuestionTypes'
+// import { RECORD_QUESTION_TYPES } from '@/constants/recordQuestionTypes'
+
+import { queryCourseDetail } from '@/api/course'
 
 const route = useRoute()
 const router = useRouter()
@@ -162,15 +101,6 @@ const courseId = ref(null)
 const currentActiveTab = ref('courseInfo') // 默认选中课程详情
 
 const mainRef = ref(null)
-
-// 学习进度
-const studyProgress = ref({
-    totalTime: '12小时30分',
-    completedSections: 3,
-    completedExercises: 8,
-    avgScore: 85,
-    overallProgress: 65
-})
 
 // 课程完整信息
 const courseDetail = ref({
@@ -240,100 +170,62 @@ const updateActiveTab = () => {
 // 获取课程信息
 const getCourseDetail = async () => {
     try {
-        const response = await request.post('/course/queryCourseDetail', courseId.value)
-        courseDetail.value = response.data.data;
-        courseDetail.value.sectionList.forEach(section => {
-            section.subsectionList.forEach(subsection => {
-                if (subsection.subsectionType == RESOURCE_TYPES.QUESTIONS) {
-                    request.post('/doQuestion/queryRecordSetBySubsection', subsection.subsectionId).then(res => {
-                        subsection.state = res.data.data.state;
-                        subsection.setRecordId = res.data.data.setRecordId;
-                    })
-                }
-            });
-        });
-    } catch (error) {
-        // 使用模拟数据
+        const response = await queryCourseDetail(courseId.value)
+
+        const data = response.data.data
+
         courseDetail.value = {
             course: {
-                courseName: 'Vue.js 前端开发实战',
-                courseDesc: '本课程将带领大家深入学习Vue.js框架，从基础语法到高级特性，通过实战项目掌握前端开发技能。课程内容涵盖Vue.js核心概念、组件化开发、路由管理、状态管理等重要知识点。',
+                courseName: data.course_name,
+                courseDesc: data.description,
                 coverPath: null,
-                tags: ['Vue.js', '前端开发', 'JavaScript', '组件化']
+                tags: data.keywords || []
             },
-            sectionList: [
-                {
-                    section: {
-                        sectionId: 1,
-                        sectionName: 'Vue.js 基础入门',
-                        sectionDesc: '学习Vue.js的基本概念和核心特性，包括Vue实例、模板语法、响应式数据等基础知识。'
-                    },
-                    subsectionList: [
-                        {
-                            subsectionId: 1,
-                            subsectionName: 'Vue.js 简介',
-                            subsectionDesc: '了解Vue.js的发展历史和基本概念',
-                            subsectionType: RESOURCE_TYPES.VIDEO,
-                            resourceId: 1,
-                            state: RECORD_QUESTION_TYPES.GRADED
-                        },
-                        {
-                            subsectionId: 2,
-                            subsectionName: 'Vue实例创建',
-                            subsectionDesc: '学习如何创建和配置Vue实例',
-                            subsectionType: RESOURCE_TYPES.DOCUMENT,
-                            resourceId: 2,
-                            state: RECORD_QUESTION_TYPES.GRADED
-                        },
-                        {
-                            subsectionId: 3,
-                            subsectionName: '基础语法练习',
-                            subsectionDesc: '练习Vue.js基础语法和指令',
-                            subsectionType: RESOURCE_TYPES.QUESTIONS,
-                            resourceId: 3,
-                            state: RECORD_QUESTION_TYPES.GRADED
-                        }
-                    ]
+            sectionList: (data.chapters || []).map(chapter => ({
+                section: {
+                    sectionId: chapter.chapter_id,
+                    sectionName: chapter.chapter_name,
+                    sectionDesc: chapter.chapter_description
                 },
-                {
-                    section: {
-                        sectionId: 2,
-                        sectionName: '组件化开发',
-                        sectionDesc: '掌握Vue.js组件化开发的核心概念，包括组件注册、组件通信、生命周期等。'
-                    },
-                    subsectionList: [
-                        {
-                            subsectionId: 4,
-                            subsectionName: '组件基础',
-                            subsectionDesc: '学习Vue组件的基本用法',
-                            subsectionType: RESOURCE_TYPES.VIDEO,
-                            resourceId: 4,
-                            state: RECORD_QUESTION_TYPES.IN_PROGRESS
-                        },
-                        {
-                            subsectionId: 5,
-                            subsectionName: '组件通信',
-                            subsectionDesc: '学习父子组件间的通信方式',
-                            subsectionType: RESOURCE_TYPES.DOCUMENT,
-                            resourceId: 5,
-                            state: RECORD_QUESTION_TYPES.UNSUBMIT
-                        }
-                    ]
-                }
-            ]
+                subsectionList: (chapter.contents || []).map(content => ({
+                    subsectionId: content.content_id,
+                    subsectionName: content.content_name,
+                    subsectionDesc: content.content_description,
+                    subsectionType: content.content_type,
+                    resourceId: content.content_id,
+                    videoUrl: content.video_url,
+                    documentUrl: content.document_url,
+                    fileId: content.content_id,           // 新增：文件ID
+                    fileUrl: content.video_url || content.document_url,  // 新增：文件URL
+                    fileName: content.content_name,       // 新增：文件名
+                    state: null
+                }))
+            }))
         }
+
+    } catch (error) {
+        console.error(error)
+
+        courseDetail.value = {
+            course: {
+                courseName: '课程加载失败',
+                courseDesc: '',
+                coverPath: null,
+                tags: []
+            },
+            sectionList: []
+        }
+
+        ElMessage.error('课程详情加载失败')
     }
 }
 
 // 返回上一页
 const goBack = () => {
-    router.go(-1)
+    router.push('/student/courses')
 }
 
-// 导出笔记
-const exportNotes = () => {
-    ElMessage.success('笔记导出功能开发中...')
-}
+
 
 // 跳转到子页面
 const goToCourseInfo = () => {
@@ -356,11 +248,6 @@ const goToLearningAssistant = () => {
     router.push(`/courseStudy/${courseId.value}/learningAssistant`)
 }
 
-const goToPractice = () => {
-    currentActiveTab.value = 'practice'
-    router.push(`/courseStudy/${courseId.value}/practice`)
-}
-
 // 小节预览
 const VideoPlayVisable = ref(false);
 const VideoPlayingUrl = ref(null);
@@ -368,7 +255,8 @@ const VideoPlayingUrl = ref(null);
 
 <style scoped>
 .course-study-page {
-    min-height: 100vh;
+    /* min-height: 100vh; */
+    min-height: calc(100vh - 60px);
     background-color: #f5f7fa;
 }
 

@@ -10,67 +10,7 @@
                     </el-button>
                     <h1 class="page-title">{{ courseDetail.course.courseName || '课程详情' }}</h1>
                 </div>
-                <div class="header-right">
-                    <el-button type="primary" @click="updateCourse">
-                        <el-icon><Check /></el-icon>
-                        保存课程
-                    </el-button>
-                    <el-button type="danger" @click="deleteCourse">
-                        <el-icon><Delete /></el-icon>
-                        删除课程
-                    </el-button>
-                </div>
             </div>
-        </div>
-
-        <!-- 课程统计卡片 -->
-        <div class="stats-section">
-            <el-row :gutter="24">
-                <el-col :span="6">
-                    <el-card class="stat-card" shadow="hover">
-                        <div class="stat-content">
-                            <el-icon class="stat-icon"><User /></el-icon>
-                            <div class="stat-info">
-                                <div class="stat-number">{{ courseStats.totalStudents }}</div>
-                                <div class="stat-label">总学生数</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-                <el-col :span="6">
-                    <el-card class="stat-card" shadow="hover">
-                        <div class="stat-content">
-                            <el-icon class="stat-icon"><Document /></el-icon>
-                            <div class="stat-info">
-                                <div class="stat-number">{{ courseStats.totalSections }}</div>
-                                <div class="stat-label">总章节数</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-                <el-col :span="6">
-                    <el-card class="stat-card" shadow="hover">
-                        <div class="stat-content">
-                            <el-icon class="stat-icon"><VideoPlay /></el-icon>
-                            <div class="stat-info">
-                                <div class="stat-number">{{ courseStats.totalSubsections }}</div>
-                                <div class="stat-label">总小节数</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-                <el-col :span="6">
-                    <el-card class="stat-card" shadow="hover">
-                        <div class="stat-content">
-                            <el-icon class="stat-icon"><Star /></el-icon>
-                            <div class="stat-info">
-                                <div class="stat-number">{{ courseStats.avgRating }}</div>
-                                <div class="stat-label">平均评分</div>
-                            </div>
-                        </div>
-                    </el-card>
-                </el-col>
-            </el-row>
         </div>
 
         <!-- 主要内容区域 -->
@@ -94,7 +34,7 @@
                             <el-icon><Edit /></el-icon>
                             编辑课程
                         </el-button>
-                        <el-button 
+                        <!-- <el-button 
                             type="default"
                             @click="goToStudentManagement" 
                             class="action-btn"
@@ -102,16 +42,7 @@
                         >
                             <el-icon><User /></el-icon>
                             学生管理
-                        </el-button>
-                        <el-button 
-                            type="default"
-                            @click="goToLearningAnalytics" 
-                            class="action-btn"
-                            :class="{ 'active': currentActiveTab === 'learningAnalytics' }"
-                        >
-                            <el-icon><DataAnalysis /></el-icon>
-                            学习分析
-                        </el-button>
+                        </el-button> -->
                         <el-button 
                             type="default"
                             @click="goToAutoDesign" 
@@ -129,10 +60,6 @@
                         >
                             <el-icon><EditPen /></el-icon>
                             生成题目
-                        </el-button>
-                        <el-button type="default" @click="exportCourse" class="action-btn">
-                            <el-icon><Download /></el-icon>
-                            导出课程
                         </el-button>
                     </div>
                 </el-card>
@@ -155,13 +82,12 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { 
-    Document, VideoPlay, EditPen, Delete, Edit, 
-    ArrowLeft, Check, User, Star, DataAnalysis, Download, MagicStick 
+    EditPen, Edit, 
+    ArrowLeft, MagicStick 
 } from '@element-plus/icons-vue'
 import request from '@/utils/request.js'
-import { RESOURCE_TYPES } from '@/constants/resourceTypes'
 import VideoPlayDialog from '@/components/file/VideoPlay.vue';
 import { useCourseStore } from '@/store/course'
 
@@ -187,10 +113,6 @@ const courseStats = ref({
 
 
 
-
-
-
-
 // 课程完整信息
 const courseDetail = ref({
     'course': {
@@ -203,18 +125,6 @@ const courseDetail = ref({
     },
     'sectionList': []
 })
-
-// 小节图标映射 - 暂时注释掉，因为当前未使用
-// const iconMap = {
-//     [RESOURCE_TYPES.DOCUMENT]: Document,
-//     [RESOURCE_TYPES.VIDEO]: VideoPlay,
-//     [RESOURCE_TYPES.QUESTIONS]: EditPen
-// }
-
-// 获取图标的函数方法 - 暂时注释掉，因为当前未使用
-// const getIconComponent = (type) => {
-//     return iconMap[type] || Document
-// }
 
 onMounted(async () => {
     courseId.value = route.params.courseId
@@ -265,77 +175,68 @@ onBeforeRouteUpdate(async (to, from) => {
 })
 
 // 获取课程信息
+// 获取课程信息
 const getCourseDetail = async () => {
-    try {
-        const response = await request.post('/course/queryCourseDetail', courseId.value)
-        courseDetail.value = response.data.data;
-        updateCourseStats()
-    } catch (error) {
-        // 使用模拟数据
-        courseDetail.value = {
-            course: {
-                courseName: 'Vue.js 前端开发实战',
-                courseDesc: '本课程将带领大家深入学习Vue.js框架，从基础语法到高级特性，通过实战项目掌握前端开发技能。',
-                coverPath: null,
-                category: 'cs',
-                difficulty: 4,
-                tags: ['Vue.js', '前端开发', 'JavaScript']
-            },
-            sectionList: [
-                {
-                    section: {
-                        sectionId: 1,
-                        sectionName: 'Vue.js 基础入门',
-                        sectionDesc: '学习Vue.js的基本概念和核心特性'
-                    },
-                    editable: false,
-                    knowledgeList: ['Vue实例', '模板语法', '响应式数据'],
-                    subsectionList: [
-                        {
-                            subsectionId: 1,
-                            subsectionName: 'Vue.js 简介',
-                            subsectionDesc: '了解Vue.js的发展历史和基本概念',
-                            subsectionType: RESOURCE_TYPES.VIDEO,
-                            resourceId: 1
-                        },
-                        {
-                            subsectionId: 2,
-                            subsectionName: 'Vue实例创建',
-                            subsectionDesc: '学习如何创建和配置Vue实例',
-                            subsectionType: RESOURCE_TYPES.DOCUMENT,
-                            resourceId: 2
-                        }
-                    ]
-                },
-                {
-                    section: {
-                        sectionId: 2,
-                        sectionName: '组件化开发',
-                        sectionDesc: '掌握Vue.js组件化开发的核心概念'
-                    },
-                    editable: false,
-                    knowledgeList: ['组件注册', '组件通信', '生命周期'],
-                    subsectionList: [
-                        {
-                            subsectionId: 3,
-                            subsectionName: '组件基础',
-                            subsectionDesc: '学习Vue组件的基本用法',
-                            subsectionType: RESOURCE_TYPES.VIDEO,
-                            resourceId: 3
-                        }
-                    ]
-                }
-            ]
-        }
-        updateCourseStats()
+  try {
+    const res = await request.get('/courses/detail', {
+      params: { course_id: courseId.value }
+    })
+
+    if (res.data.code === '200') {
+      const d = res.data.data
+      // 转换成页面需要的格式
+      courseDetail.value = {
+        course: {
+          courseId: d.course_id,
+          courseName: d.course_name,
+          courseDesc: d.description,
+          keywords: d.keywords || [],
+          coverPath: null
+        },
+        chapterList: (d.chapters || []).map(ch => ({
+          chapterId: ch.chapter_id,
+          chapterName: ch.chapter_name,
+          chapterDesc: ch.chapter_description,
+          chapterOrder: ch.chapter_order,
+          contents: (ch.contents || []).map(ct => ({
+            contentId: ct.content_id,
+            contentName: ct.content_name,
+            contentDesc: ct.content_description,
+            contentType: ct.content_type,
+            contentOrder: ct.content_order,
+            videoUrl: ct.video_url,
+            documentUrl: ct.document_url
+          }))
+        }))
+      }
+      updateCourseStats()
+      return
     }
+  } catch (error) {
+    console.log('接口调用失败，使用模拟数据')
+  }
+
+  // 接口失败时的模拟数据
+  courseDetail.value = {
+    course: {
+      courseId: courseId.value,
+      courseName: `课程 ${courseId.value}`,
+      courseDesc: '暂无课程描述',
+      keywords: [],
+      coverPath: null
+    },
+    chapterList: []
+  }
+  updateCourseStats()
 }
+
 
 // 更新课程统计
 const updateCourseStats = () => {
-    courseStats.value.totalSections = courseDetail.value.sectionList.length
-    courseStats.value.totalSubsections = courseDetail.value.sectionList.reduce((sum, section) => {
-        return sum + section.subsectionList.length
+    const chapters = courseDetail.value.chapterList || []
+    courseStats.value.totalSections = chapters.length
+    courseStats.value.totalSubsections = chapters.reduce((sum, ch) => {
+        return sum + (ch.contents?.length || 0)
     }, 0)
 }
 
@@ -344,15 +245,6 @@ const goBack = () => {
     router.go(-1)
 }
 
-// 重置课程表单 - 暂时注释掉，因为当前未使用
-// const resetCourseForm = () => {
-//     ElMessage.info('表单已重置')
-// }
-
-// 导出课程
-const exportCourse = () => {
-    ElMessage.success('课程导出功能开发中...')
-}
 
 // 跳转到独立页面
 const goToCourseEdit = () => {
@@ -360,15 +252,10 @@ const goToCourseEdit = () => {
     router.push(`/teacher/courseDetail/${courseId.value}/courseEdit`)
 }
 
-const goToStudentManagement = () => {
-    currentActiveTab.value = 'studentManagement'
-    router.push(`/teacher/courseDetail/${courseId.value}/studentManagement`)
-}
-
-const goToLearningAnalytics = () => {
-    currentActiveTab.value = 'learningAnalytics'
-    router.push(`/teacher/courseDetail/${courseId.value}/learningAnalytics`)
-}
+// const goToStudentManagement = () => {
+//     currentActiveTab.value = 'studentManagement'
+//     router.push(`/teacher/courseDetail/${courseId.value}/studentManagement`)
+// }
 
 const goToAutoDesign = () => {
     currentActiveTab.value = 'autoDesign'
@@ -383,220 +270,68 @@ const goToQuestionGenerate = () => {
 
 
 // 更新课程信息
-const updateCourse = async () => {
-    const formData = new FormData();
-    formData.append('courseId', courseId.value);
-    formData.append('courseName', courseDetail.value.course.courseName);
-    formData.append('courseDesc', courseDetail.value.course.courseDesc);
-    if (coverFile.value[0]) {
-        formData.append('coverFile', coverFile.value[0].raw);
-    } else {
-        formData.append('coverFile', null);
-    }
+// const updateCourse = async () => {
+//     const formData = new FormData();
+//     formData.append('courseId', courseId.value);
+//     formData.append('courseName', courseDetail.value.course.courseName);
+//     formData.append('courseDesc', courseDetail.value.course.courseDesc);
+//     if (coverFile.value[0]) {
+//         formData.append('coverFile', coverFile.value[0].raw);
+//     } else {
+//         formData.append('coverFile', null);
+//     }
 
-    try {
-        const res = await request.post('/course/updateCourse', formData)
-        if (res.data.code != 200) {
-            ElMessage.error("后端处理失败，请稍后再试");
-            return;
-        }
-        ElMessage.success('更新成功');
-        router.push({
-            name: "MyCourse",
-        })
-    } catch (error) {
-        ElMessage.success('课程信息更新成功（模拟）')
-    }
-}
+//     try {
+//         const res = await request.post('/course/updateCourse', formData)
+//         if (res.data.code != 200) {
+//             ElMessage.error("后端处理失败，请稍后再试");
+//             return;
+//         }
+//         ElMessage.success('更新成功');
+//         router.push({
+//             name: "MyCourse",
+//         })
+//     } catch (error) {
+//         ElMessage.success('课程信息更新成功（模拟）')
+//     }
+// }
 
 // 删除课程
-const deleteCourse = async () => {
-    try {
-        await ElMessageBox.confirm(
-            '确定要删除这个课程吗？此操作不可撤销！',
-            '确认删除',
-            {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }
-        )
+// const deleteCourse = async () => {
+//     try {
+//         await ElMessageBox.confirm(
+//             '确定要删除这个课程吗？此操作不可撤销！',
+//             '确认删除',
+//             {
+//                 confirmButtonText: '确定',
+//                 cancelButtonText: '取消',
+//                 type: 'warning'
+//             }
+//         )
         
-        try {
-            await request.post('/course/deleteCourse', courseId.value)
-            ElMessage.success('成功删除');
-        } catch (error) {
-            ElMessage.success('课程删除成功（模拟）')
-        }
+//         try {
+//             await request.post('/course/deleteCourse', courseId.value)
+//             ElMessage.success('成功删除');
+//         } catch (error) {
+//             ElMessage.success('课程删除成功（模拟）')
+//         }
         
-        router.push({
-            name: "MyCourse",
-        })
-    } catch (error) {
-        if (error !== 'cancel') {
-            ElMessage.error('删除失败')
-        }
-    }
-}
+//         router.push({
+//             name: "MyCourse",
+//         })
+//     } catch (error) {
+//         if (error !== 'cancel') {
+//             ElMessage.error('删除失败')
+//         }
+//     }
+// }
 
 // 封面上传
 const coverFile = ref([]);
-// const handleChange = (uploadFile) => {
-//     const rawFile = uploadFile.raw;
-//     if (!rawFile.type.startsWith('image/')) {
-//         ElMessage.error('请上传图片格式文件（JPG/PNG）')
-//         return false;
-//     }
-
-//     if (coverFile.value) {
-//         URL.revokeObjectURL(courseDetail.value.course.coverPath);
-//     }
-//     coverFile.value = [rawFile];
-//     courseDetail.value.course.coverPath = URL.createObjectURL(rawFile)
-// }
-
-// const handleRemove = () => {
-//     if (courseDetail.value.course.coverPath) {
-//         URL.revokeObjectURL(courseDetail.value.course.coverPath);
-//     }
-//     courseDetail.value.course.coverPath = null;
-//     coverFile.value = [];
-// }
-
-// 文件超出限制处理 - 暂时注释掉，因为当前未使用
-// const handleExceed = (files) => {
-//     if (files.length === 0) return
-//     handleRemove()
-//     handleChange({
-//         raw: files[0],
-//     })
-//     ElMessage.warning("覆盖图片");
-// }
-
-// 章节操作 - 暂时注释掉，因为当前未使用
-// const addSection = async () => {
-//     try {
-//         const formData = {
-//             'courseId': courseId.value
-//         }
-//         const response = await request.post('/section/addSection', formData)
-//         courseDetail.value.sectionList.push(response.data.data);
-//     } catch (error) {
-//         // 模拟添加章节
-//         const newSection = {
-//             section: {
-//                 sectionId: Date.now(),
-//                 sectionName: '新章节',
-//                 sectionDesc: '请输入章节描述'
-//             },
-//             editable: true,
-//             knowledgeList: [],
-//             subsectionList: []
-//         }
-//         courseDetail.value.sectionList.push(newSection)
-//         updateCourseStats()
-//         ElMessage.success('章节添加成功')
-//     }
-// }
-
-// const updateSection = async (sectionDTO) => {
-//     try {
-//         await request.post('/section/updateSection', sectionDTO)
-//         ElMessage.success("成功更新");
-//     } catch (error) {
-//         ElMessage.success('章节更新成功（模拟）')
-//     }
-// }
-
-// const deleteSection = async (sectionId, sectionIndex) => {
-//     try {
-//         await ElMessageBox.confirm(
-//             '确定要删除这个章节吗？此操作不可撤销！',
-//             '确认删除',
-//             {
-//                 confirmButtonText: '确定',
-//                 cancelButtonText: '取消',
-//                 type: 'warning'
-//             }
-//         )
-        
-//         try {
-//             await request.post('/section/deleteSection', sectionId)
-//         } catch (error) {
-//             // 模拟删除
-//         }
-        
-//         courseDetail.value.sectionList.splice(sectionIndex, 1);
-//         updateCourseStats()
-//         ElMessage.success('章节删除成功')
-//     } catch (error) {
-//         if (error !== 'cancel') {
-//             ElMessage.error('删除失败')
-//         }
-//     }
-// }
-
-// 小节操作 - 暂时注释掉，因为当前未使用
-// const addSubsection = (sectionId) => {
-//     router.push({
-//         name: "OpSubsection",
-//         query: {
-//             "sectionId": sectionId,
-//         }
-//     })
-// }
-
-// const editSubsection = (subsectionId) => {
-//     router.push({
-//         name: "OpSubsection",
-//         query: {
-//             "subsectionId": subsectionId,
-//         }
-//     })
-// }
-
-// const deleteSubsection = async (subsectionId, sectionIndex, subsectionIndex) => {
-//     try {
-//         await ElMessageBox.confirm(
-//             '确定要删除这个小节吗？此操作不可撤销！',
-//             '确认删除',
-//             {
-//                 confirmButtonText: '确定',
-//                 cancelButtonText: '取消',
-//                 type: 'warning'
-//             }
-//         )
-        
-//         try {
-//             await request.post('/section/deleteSubsection', subsectionId)
-//             // 模拟删除
-//         } catch (error) {
-//             // 模拟删除
-//         }
-        
-//         courseDetail.value.sectionList[sectionIndex].subsectionList.splice(subsectionIndex, 1);
-//         updateCourseStats()
-//         ElMessage.success("成功删除");
-//     } catch (error) {
-//         if (error !== 'cancel') {
-//             ElMessage.error('删除失败')
-//         }
-//     }
-// }
 
 // 小节预览
 const VideoPlayVisable = ref(false);
 const VideoPlayingUrl = ref(null);
-// const preview = async (resourceId, resourceType) => {
-//     ElMessage.info(`预览资源: ${resourceType}`)
-// }
-
-
-
-
-
-
-
 
 </script>
 
